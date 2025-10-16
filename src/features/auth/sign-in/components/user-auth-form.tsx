@@ -55,26 +55,22 @@ export function UserAuthForm({
     setIsLoading(true)
 
     try {
-      const loginPromise = authService.login({
+      const loginPromise = await authService.login({
         email: data.email,
         password: data.password,
       });
 
-      const rawResult = await toast.promise(
-        loginPromise.then(res => typeof res === 'object' && 'unwrap' in res ? res.unwrap() : res),
-        {
-          loading: 'Iniciando sesión...',
-          success: 'Sesión iniciada correctamente',
-          error: (err) => `Error: ${err.message || 'Credenciales incorrectas'}`,
-        }
-      );
+      if (!loginPromise || !loginPromise.accessToken) {
+        throw new Error('Invalid response from login service');
+      }
 
-      // Guardamos los tokens
-      auth.setTokens(rawResult.accessToken, rawResult.refreshToken);
+      // The auth service already saves tokens to cookies
+      // We just need to update the store with the tokens
+      auth.setTokens(loginPromise.accessToken, loginPromise.refreshToken);
 
       // Si tenemos datos del usuario, los guardamos en el store
-      if (rawResult.user) {
-        auth.setUser(rawResult.user);
+      if (loginPromise.user) {
+        auth.setUser(loginPromise.user);
       }
 
       // Redirigimos al usuario

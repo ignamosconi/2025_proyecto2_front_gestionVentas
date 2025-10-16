@@ -11,7 +11,7 @@ export const AUTH_ENDPOINTS = {
   REFRESH_TOKEN: `${API_BASE_URL}/auth/tokens`,
   ME: `${API_BASE_URL}/auth/me`,
   FORGOT_PASSWORD: `${API_BASE_URL}/auth/forgot-password`,
-  RESET_PASSWORD: `${API_BASE_URL}/auth/reset-password`
+  RESET_PASSWORD: `${API_BASE_URL}/auth/reset-password`,
 };
 
 // Endpoints de usuarios
@@ -21,8 +21,8 @@ export const USERS_ENDPOINTS = {
   CREATE: `${API_BASE_URL}/users`,
   UPDATE: (id: string) => `${API_BASE_URL}/users/${id}`,
   DELETE: (id: string) => `${API_BASE_URL}/users/${id}`,
-  REGISTER_EMPLOYEE: `${API_BASE_URL}/users/register-employee`,
-  REGISTER_OWNER: `${API_BASE_URL}/users/register-employee-owner`
+  REGISTER_EMPLOYEE: `${API_BASE_URL}/users/register`,
+  REGISTER_OWNER: `${API_BASE_URL}/users/register-owner`
 };
 
 // Endpoints de ventas

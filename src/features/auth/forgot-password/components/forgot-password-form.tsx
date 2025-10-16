@@ -16,10 +16,11 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { authService } from '@/services'
 
 const formSchema = z.object({
   email: z.email({
-    error: (iss) => (iss.input === '' ? 'Please enter your email' : undefined),
+    error: (iss) => (iss.input === '' ? 'Por favor ingresa tu correo electrónico' : undefined),
   }),
 })
 
@@ -35,23 +36,30 @@ export function ForgotPasswordForm({
     defaultValues: { email: '' },
   })
 
-  function onSubmit(data: z.infer<typeof formSchema>) {
+  async function onSubmit(data: z.infer<typeof formSchema>) {
     setIsLoading(true)
-    // eslint-disable-next-line no-console
-    console.log(data)
-
-    toast.promise(sleep(2000), {
-      loading: 'Sending email...',
-      success: () => {
-        setIsLoading(false)
-        form.reset()
-        navigate({ to: '/otp' })
-        return `Email sent to ${data.email}`
-      },
-      error: 'Error',
-    })
+    
+    try {
+      const forgotPasswordResponse = await authService.forgotPassword(data.email);
+      console.log('forgotPasswordResponse', forgotPasswordResponse);
+      if (forgotPasswordResponse.success) {
+        toast.success(forgotPasswordResponse.message || 'Email enviado', {
+          description: 'Revisa tu correo para restablecer tu contraseña.',
+        })
+        await sleep(500)
+        navigate({ to: '/sign-in' })
+      } else {
+        toast.error('Error al enviar el email. Intenta nuevamente.')
+      }
+    } catch (error: any) {
+      console.error('Error al enviar email de recuperación:', error);
+      toast.error('Error al enviar el email', {
+        description: error?.response?.data?.message || 'Intenta nuevamente.',
+      });
+    } finally {
+      setIsLoading(false)
+    }
   }
-
   return (
     <Form {...form}>
       <form
