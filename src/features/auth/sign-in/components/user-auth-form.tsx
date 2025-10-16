@@ -5,9 +5,9 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { Loader2, LogIn } from 'lucide-react'
 import { toast } from 'sonner'
-import { IconFacebook, IconGithub } from '@/assets/brand-icons'
 import { useAuthStore } from '@/stores/auth-store'
-import { sleep, cn } from '@/lib/utils'
+import { cn } from '@/lib/utils'
+import { authService } from '@/services/auth/auth.service'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -51,34 +51,42 @@ export function UserAuthForm({
     },
   })
 
-  function onSubmit(data: z.infer<typeof formSchema>) {
+  async function onSubmit(data: z.infer<typeof formSchema>) {
     setIsLoading(true)
 
-    toast.promise(sleep(2000), {
-      loading: 'Signing in...',
-      success: () => {
-        setIsLoading(false)
+    try {
+      const loginPromise = authService.login({
+        email: data.email,
+        password: data.password,
+      });
 
-        // Mock successful authentication with expiry computed at success time
-        const mockUser = {
-          accountNo: 'ACC001',
-          email: data.email,
-          role: ['user'],
-          exp: Date.now() + 24 * 60 * 60 * 1000, // 24 hours from now
+      const rawResult = await toast.promise(
+        loginPromise.then(res => typeof res === 'object' && 'unwrap' in res ? res.unwrap() : res),
+        {
+          loading: 'Iniciando sesión...',
+          success: 'Sesión iniciada correctamente',
+          error: (err) => `Error: ${err.message || 'Credenciales incorrectas'}`,
         }
+      );
 
-        // Set user and access token
-        auth.setUser(mockUser)
-        auth.setAccessToken('mock-access-token')
+      // Guardamos los tokens
+      auth.setTokens(rawResult.accessToken, rawResult.refreshToken);
 
-        // Redirect to the stored location or default to dashboard
-        const targetPath = redirectTo || '/'
-        navigate({ to: targetPath, replace: true })
+      // Si tenemos datos del usuario, los guardamos en el store
+      if (rawResult.user) {
+        auth.setUser(rawResult.user);
+      }
 
-        return `Welcome back, ${data.email}!`
-      },
-      error: 'Error',
-    })
+      // Redirigimos al usuario
+      const targetPath = redirectTo || '/';
+      navigate({ to: targetPath, replace: true });
+      
+      return;
+    } catch (error) {
+      console.error('Error en inicio de sesión:', error);
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
