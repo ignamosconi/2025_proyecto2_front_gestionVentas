@@ -23,7 +23,7 @@ export function AppSidebar() {
     return sidebarData.navGroups.map((group) => {
       const filteredItems = group.items.filter((item) => {
         // Si el item es "Usuarios", solo mostrarlo si el usuario es "Dueño"
-        if (item.title === 'Usuarios') {
+        if (item.title === 'Usuarios' || item.title === 'Líneas de producto') {
           return hasRole('Dueño')
         }
         // Para otros items, mostrarlos siempre

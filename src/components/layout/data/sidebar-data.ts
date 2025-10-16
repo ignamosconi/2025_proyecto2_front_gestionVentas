@@ -40,5 +40,15 @@ export const sidebarData: SidebarData = {
         }
       ],
     },
+    {
+      title: 'Catalogo',
+      items: [
+        {
+          title: 'Líneas de producto',
+          url: '/lines',
+          icon: ListTodo,
+        },
+      ]
+    }
   ],
 }
