@@ -5,6 +5,7 @@ import {
 import useDialogState from '@/hooks/use-dialog-state'
 import { useAuthStore } from '@/stores/auth-store'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,6 +38,7 @@ export function NavUser() {
       ? `${userData.firstName} ${userData.lastName}` 
       : userData?.email?.split('@')[0] || 'Sin Nombre',
     email: userData?.email || '<Email>',
+    role: userData?.role || 'Sin Rol',
     initials: userData?.firstName && userData?.lastName
       ? `${userData.firstName.charAt(0)}${userData.lastName.charAt(0)}`
       : userData?.email 
@@ -78,6 +80,9 @@ export function NavUser() {
                   <div className='grid flex-1 text-start text-sm leading-tight'>
                     <span className='truncate font-semibold'>{user.username}</span>
                     <span className='truncate text-xs'>{user.email}</span>
+                    <Badge variant='secondary' className='mt-1 w-fit text-xs'>
+                      {user.role}
+                    </Badge>
                   </div>
                 </div>
               </DropdownMenuLabel>

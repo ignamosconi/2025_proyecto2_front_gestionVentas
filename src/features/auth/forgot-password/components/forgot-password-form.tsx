@@ -41,7 +41,7 @@ export function ForgotPasswordForm({
     
     try {
       const forgotPasswordResponse = await authService.forgotPassword(data.email);
-      console.log('forgotPasswordResponse', forgotPasswordResponse);
+
       if (forgotPasswordResponse.success) {
         toast.success(forgotPasswordResponse.message || 'Email enviado', {
           description: 'Revisa tu correo para restablecer tu contraseña.',
