@@ -183,7 +183,7 @@ export function TasksTable({ data }: DataTableProps) {
                   colSpan={columns.length}
                   className='h-24 text-center'
                 >
-                  No results.
+                  No hay datos para mostrar.
                 </TableCell>
               </TableRow>
             )}
