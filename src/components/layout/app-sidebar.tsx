@@ -22,8 +22,8 @@ export function AppSidebar() {
   const filteredNavGroups = useMemo(() => {
     return sidebarData.navGroups.map((group) => {
       const filteredItems = group.items.filter((item) => {
-        // Si el item es "Usuarios", solo mostrarlo si el usuario es "Dueño"
-        if (item.title === 'Usuarios' || item.title === 'Líneas de producto') {
+        // Si el item es "Usuarios", "Líneas de producto" o "Marcas", solo mostrarlo si el usuario es "Dueño"
+        if (item.title === 'Usuarios' || item.title === 'Líneas de producto' || item.title === 'Marcas') {
           return hasRole('Dueño')
         }
         // Para otros items, mostrarlos siempre

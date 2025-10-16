@@ -3,6 +3,7 @@ import {
   ListTodo,
   Users,
   Command,
+  Tag,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 
@@ -47,6 +48,11 @@ export const sidebarData: SidebarData = {
           title: 'Líneas de producto',
           url: '/lines',
           icon: ListTodo,
+        },
+        {
+          title: 'Marcas',
+          url: '/brands',
+          icon: Tag,
         },
       ]
     }

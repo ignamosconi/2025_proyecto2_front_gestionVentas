@@ -21,13 +21,14 @@ import { Input } from '@/components/ui/input'
 import { PasswordInput } from '@/components/password-input'
 
 const formSchema = z.object({
-  email: z.email({
-    error: (iss) => (iss.input === '' ? 'Please enter your email' : undefined),
-  }),
+  email: z
+    .string()
+    .min(1, 'Por favor ingresa tu correo electrónico')
+    .email('Por favor ingresa un correo electrónico válido'),
   password: z
     .string()
-    .min(1, 'Please enter your password')
-    .min(7, 'Password must be at least 7 characters long'),
+    .min(1, 'Por favor ingresa tu contraseña')
+    .min(7, 'La contraseña debe tener al menos 8 caracteres'),
 })
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLFormElement> {
@@ -61,7 +62,8 @@ export function UserAuthForm({
       });
 
       if (!loginPromise || !loginPromise.accessToken) {
-        throw new Error('Invalid response from login service');
+        toast.error('Respuesta inválida del servidor')
+        return;
       }
 
       // The auth service already saves tokens to cookies
@@ -73,13 +75,41 @@ export function UserAuthForm({
         auth.setUser(loginPromise.user);
       }
 
+      toast.success('Inicio de sesión exitoso')
+
       // Redirigimos al usuario
       const targetPath = redirectTo || '/';
       navigate({ to: targetPath, replace: true });
       
-      return;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error en inicio de sesión:', error);
+      
+      // Traducir mensajes de error comunes del backend
+      let errorMessage = 'Error al iniciar sesión. Por favor, intenta nuevamente.';
+      
+      if (error.response?.data?.message) {
+        const backendMessage = error.response.data.message;
+        
+        // Traducir mensajes específicos
+        if (backendMessage.includes('Invalid credentials') || 
+            backendMessage.includes('Credenciales inválidas') ||
+            backendMessage.includes('incorrect')) {
+          errorMessage = 'Correo electrónico o contraseña incorrectos';
+        } else if (backendMessage.includes('not found') || 
+                   backendMessage.includes('no encontrado')) {
+          errorMessage = 'Usuario no encontrado';
+        } else if (backendMessage.includes('Unauthorized') || 
+                   backendMessage.includes('No autorizado')) {
+          errorMessage = 'Credenciales inválidas';
+        } else {
+          // Usar el mensaje del backend si está en español
+          errorMessage = backendMessage;
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }

@@ -85,11 +85,15 @@ api.interceptors.response.use(
         isRefreshing = false
         processQueue(new Error('No refresh token available'))
         
-        // Clear auth and redirect to login
+        // Clear auth and redirect to login only if NOT already on login page
         if (typeof window !== 'undefined') {
           document.cookie = 'access_token=; path=/; max-age=0'
           document.cookie = 'refresh_token=; path=/; max-age=0'
-          window.location.href = '/sign-in'
+          
+          // Only redirect if not already on sign-in page
+          if (!window.location.pathname.includes('/sign-in')) {
+            window.location.href = '/sign-in'
+          }
         }
         
         return Promise.reject(error)
@@ -136,7 +140,11 @@ api.interceptors.response.use(
         if (typeof window !== 'undefined') {
           document.cookie = 'access_token=; path=/; max-age=0'
           document.cookie = 'refresh_token=; path=/; max-age=0'
-          window.location.href = '/sign-in'
+          
+          // Only redirect if not already on sign-in page
+          if (!window.location.pathname.includes('/sign-in')) {
+            window.location.href = '/sign-in'
+          }
         }
 
         return Promise.reject(refreshError)

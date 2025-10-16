@@ -34,11 +34,13 @@ export const CATALOG_ENDPOINTS = {
     DELETE: (id: string) => `${API_BASE_URL}/lineas/${id}`,
     CREATE: `${API_BASE_URL}/lineas`,
   },
-  GET_ALL: `${API_BASE_URL}/catalogo`,
-  GET_BY_ID: (id: string) => `${API_BASE_URL}/catalogo/${id}`,
-  UPDATE: (id: string) => `${API_BASE_URL}/catalogo/${id}`,
-  DELETE: (id: string) => `${API_BASE_URL}/catalogo/${id}`,
-  CREATE: `${API_BASE_URL}/catalogo`,
+  BRANDS_ENDPOINTS: {
+    GET_ALL: `${API_BASE_URL}/marcas`,
+    GET_BY_ID: (id: string) => `${API_BASE_URL}/marcas/${id}`,
+    UPDATE: (id: string) => `${API_BASE_URL}/marcas/${id}`,
+    DELETE: (id: string) => `${API_BASE_URL}/marcas/${id}`,
+    CREATE: `${API_BASE_URL}/marcas`,
+  },
 };
 
 
