@@ -43,4 +43,22 @@ export const brandsService = {
     const response = await api.delete(CATALOG_ENDPOINTS.BRANDS_ENDPOINTS.DELETE(String(id)));
     return response.data;
   },
+
+  // Obtener líneas asociadas a una marca
+  async getAssociatedLines(brandId: string | number) {
+    const response = await api.get(CATALOG_ENDPOINTS.BRANDS_ENDPOINTS.GET_LINES(brandId));
+    return response.data;
+  },
+
+  // Asociar una línea a una marca
+  async assignLine(brandId: string | number, lineId: string | number) {
+    const response = await api.post(CATALOG_ENDPOINTS.BRANDS_ENDPOINTS.ASSIGN_LINE(brandId, lineId));
+    return response.data;
+  },
+
+  // Desasociar una línea de una marca
+  async unassignLine(brandId: string | number, lineId: string | number) {
+    const response = await api.delete(CATALOG_ENDPOINTS.BRANDS_ENDPOINTS.UNASSIGN_LINE(brandId, lineId));
+    return response.data;
+  },
 };

@@ -40,6 +40,9 @@ export const CATALOG_ENDPOINTS = {
     UPDATE: (id: string) => `${API_BASE_URL}/marcas/${id}`,
     DELETE: (id: string) => `${API_BASE_URL}/marcas/${id}`,
     CREATE: `${API_BASE_URL}/marcas`,
+    GET_LINES: (brandId: string | number) => `${API_BASE_URL}/marca/${brandId}/linea`,
+    ASSIGN_LINE: (brandId: string | number, lineId: string | number) => `${API_BASE_URL}/marca/${brandId}/linea/${lineId}`,
+    UNASSIGN_LINE: (brandId: string | number, lineId: string | number) => `${API_BASE_URL}/marca/${brandId}/linea/${lineId}`,
   },
 };
 
