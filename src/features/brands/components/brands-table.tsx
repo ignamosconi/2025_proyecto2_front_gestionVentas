@@ -162,7 +162,7 @@ export function BrandsTable({ data, search, navigate, onUpdate, refreshTrigger, 
                     </TableRow>
                     {isExpanded && (
                       <TableRow>
-                        <TableCell colSpan={columns.length} className='p-0 bg-muted/30'>
+                        <TableCell colSpan={columns.length} className='p-0'>
                           <BrandLinesExpandedRow
                             brandId={row.original.id}
                             brandName={row.original.nombre}

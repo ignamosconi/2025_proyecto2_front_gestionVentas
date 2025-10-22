@@ -125,9 +125,25 @@ export function BrandLinesExpandedRow({
 
   if (lines.length === 0) {
     return (
-      <div className='py-8 text-center text-sm text-muted-foreground'>
-        No hay líneas asociadas a esta marca
+      <div className='py-4'>
+          <div className='mb-3 px-4 flex items-center justify-between'>
+          <h4 className='text-sm font-semibold text-muted-foreground'>
+            Líneas de producto asociadas
+          </h4>
+          <Button
+            size='sm'
+            onClick={onAssignLine}
+            className='h-8 gap-1'
+          >
+            <Plus className='h-4 w-4' />
+            Asociar línea
+          </Button>
+        </div>
+        <div className='py-8 text-center text-sm text-muted-foreground'>
+          No hay líneas asociadas a esta marca
+        </div>
       </div>
+     
     )
   }
 
