@@ -4,8 +4,8 @@ import { SUPPLIER_ENDPOINTS } from '../endpoints';
 // Interfaces para los DTOs
 export interface CreateSupplierDto {
   nombre: string;
-  direccion?: string;
-  telefono?: string;
+  direccion: string;
+  telefono: string;
 }
 
 export interface UpdateSupplierDto {
@@ -30,13 +30,14 @@ export const suppliersService = {
 
   // Crear un nuevo proveedor
   async create(data: CreateSupplierDto) {
+    console.log('Creating supplier with data:', data);
     const response = await api.post(SUPPLIER_ENDPOINTS.CREATE, data);
     return response.data;
   },
 
   // Actualizar un proveedor existente
   async update(id: string | number, data: UpdateSupplierDto) {
-    const response = await api.patch(SUPPLIER_ENDPOINTS.UPDATE(String(id)), data);
+    const response = await api.put(SUPPLIER_ENDPOINTS.UPDATE(String(id)), data);
     return response.data;
   },
 

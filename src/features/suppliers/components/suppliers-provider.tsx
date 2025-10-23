@@ -1,53 +1,36 @@
-import { createContext, useContext, useState, ReactNode } from 'react'
-import type { Supplier } from '../data/schema'
+import React, { useState } from 'react'
+import useDialogState from '@/hooks/use-dialog-state'
+import { type Supplier } from '../data/schema'
 
-type DialogType = 'create' | 'edit' | 'delete' | 'restore'
+type SuppliersDialogType =  'add' | 'edit' | 'delete'
 
-interface SuppliersContextType {
-  open: Record<DialogType, boolean>
-  setOpen: (type: DialogType) => void
-  setClose: (type: DialogType) => void
+type SuppliersContextType = {
+  open: SuppliersDialogType | null
+  setOpen: (str: SuppliersDialogType | null) => void
   currentRow: Supplier | null
-  setCurrentRow: (row: Supplier | null) => void
+  setCurrentRow: React.Dispatch<React.SetStateAction<Supplier | null>>
 }
 
-const SuppliersContext = createContext<SuppliersContextType | undefined>(undefined)
+const SuppliersContext = React.createContext<SuppliersContextType | null>(null)
 
-interface SuppliersProviderProps {
-  children: ReactNode
-}
-
-export function SuppliersProvider({ children }: SuppliersProviderProps) {
-  const [open, setDialogOpen] = useState<Record<DialogType, boolean>>({
-    create: false,
-    edit: false,
-    delete: false,
-    restore: false,
-  })
-  
+export function SuppliersProvider({ children }: { children: React.ReactNode }) {
+  const [open, setOpen] = useDialogState<SuppliersDialogType>(null)
   const [currentRow, setCurrentRow] = useState<Supplier | null>(null)
 
-  const setOpen = (type: DialogType) => {
-    setDialogOpen((prev) => ({ ...prev, [type]: true }))
-  }
-
-  const setClose = (type: DialogType) => {
-    setDialogOpen((prev) => ({ ...prev, [type]: false }))
-  }
-
   return (
-    <SuppliersContext.Provider value={{ open, setOpen, setClose, currentRow, setCurrentRow }}>
+    <SuppliersContext.Provider value={{ open, setOpen, currentRow, setCurrentRow }}>
       {children}
     </SuppliersContext.Provider>
   )
 }
 
-export function useSuppliers() {
-  const context = useContext(SuppliersContext)
-  
-  if (context === undefined) {
-    throw new Error('useSuppliers debe ser usado dentro de un SuppliersProvider')
+// eslint-disable-next-line react-refresh/only-export-components
+export const useSuppliers = () => {
+  const suppliersContext = React.useContext(SuppliersContext)
+
+  if (!suppliersContext) {
+    throw new Error('useSuppliers has to be used within <SuppliersContext>')
   }
-  
-  return context
+
+  return suppliersContext
 }

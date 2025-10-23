@@ -1,60 +1,98 @@
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { useSuppliers } from './suppliers-provider'
-import { suppliersService } from '@/services/suppliers/suppliers.service'
-import { useState } from 'react'
-import { toast } from 'sonner'
+'use client'
 
-interface SuppliersDeleteDialogProps {
-  onSuccess: () => void
+import { useState } from 'react'
+import { AlertTriangle } from 'lucide-react'
+import { toast } from 'sonner'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { ConfirmDialog } from '@/components/confirm-dialog'
+import { type Supplier } from '../data/schema'
+import { suppliersService } from '@/services/suppliers/suppliers.service'
+
+type SupplierDeleteDialogProps = {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  currentRow: Supplier
+  onSuccess?: () => void
 }
 
-export function SuppliersDeleteDialog({ onSuccess }: SuppliersDeleteDialogProps) {
-  const { open, setClose, currentRow } = useSuppliers()
-  const [isLoading, setIsLoading] = useState(false)
-
-  const handleClose = () => {
-    setClose('delete')
-  }
+export function SuppliersDeleteDialog({
+  open,
+  onOpenChange,
+  currentRow,
+  onSuccess,
+}: SupplierDeleteDialogProps) {
+  const [value, setValue] = useState('')
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const handleDelete = async () => {
-    if (!currentRow) return
+    if (value.trim() !== currentRow.nombre) return
 
-    setIsLoading(true)
     try {
+      setIsDeleting(true)
       await suppliersService.delete(currentRow.idProveedor)
       toast.success('Proveedor eliminado correctamente')
-      handleClose()
-      onSuccess()
-    } catch (error) {
-      console.error('Error:', error)
-      toast.error('Ha ocurrido un error al eliminar el proveedor')
+      onOpenChange(false)
+      setValue('')
+      onSuccess?.()
+    } catch (error: any) {
+      console.error('Error al eliminar proveedor:', error)
+      const errorMessage = error.response?.data?.message || 'Error al eliminar el proveedor'
+      toast.error(errorMessage)
     } finally {
-      setIsLoading(false)
+      setIsDeleting(false)
     }
   }
 
   return (
-    <Dialog open={open.delete} onOpenChange={open => {
-      if (!open) handleClose()
-    }}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Eliminar Proveedor</DialogTitle>
-          <DialogDescription>
-            ¿Estás seguro que deseas eliminar el proveedor "{currentRow?.nombre}"? Esta acción no eliminará permanentemente el registro.
-          </DialogDescription>
-        </DialogHeader>
-        
-        <DialogFooter>
-          <Button type='button' variant='outline' onClick={handleClose}>
-            Cancelar
-          </Button>
-          <Button type='button' variant='destructive' onClick={handleDelete} disabled={isLoading}>
-            {isLoading ? 'Eliminando...' : 'Eliminar'}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <ConfirmDialog
+      open={open}
+      onOpenChange={(state) => {
+        if (!isDeleting) {
+          setValue('')
+          onOpenChange(state)
+        }
+      }}
+      handleConfirm={handleDelete}
+      disabled={value.trim() !== currentRow.nombre || isDeleting}
+      title={
+        <span className='text-destructive'>
+          <AlertTriangle
+            className='stroke-destructive me-1 inline-block'
+            size={18}
+          />{' '}
+          Eliminar proveedor
+        </span>
+      }
+      desc={
+        <div className='space-y-4'>
+          <p className='mb-2'>
+            ¿Estas seguro que deseas eliminar <span className='font-bold'>{currentRow.nombre}</span>?
+            <br />
+          </p>
+
+          <Label className='my-2'>
+            Nombre del proveedor:{' '}
+          </Label>
+           <Input
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              placeholder='Escribe el nombre del proveedor para confirmar'
+              disabled={isDeleting}
+            />
+
+          <Alert variant='destructive'>
+            <AlertTitle>Advertencia!</AlertTitle>
+            <AlertDescription>
+              Por favor ten cuidado, esta operación no se puede deshacer.
+            </AlertDescription>
+          </Alert>
+        </div>
+      }
+      confirmText={isDeleting ? 'Eliminando...' : 'Eliminar proveedor'}
+      cancelBtnText='Cancelar'
+      destructive
+    />
   )
 }

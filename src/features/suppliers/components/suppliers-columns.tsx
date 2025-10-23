@@ -13,6 +13,22 @@ export const suppliersColumns: ColumnDef<Supplier>[] = [
     enableSorting: false,
   },
   {
+    accessorKey: 'direccion',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Dirección' />
+    ),
+    cell: ({ row }) => <div>{row.getValue('direccion') == "" || null ? '-' : row.getValue('direccion')}</div>,
+    enableSorting: false,
+  },
+   {
+    accessorKey: 'telefono',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Teléfono' />
+    ),
+    cell: ({ row }) => <div>{row.getValue('telefono') == "" || null ? '-' : row.getValue('telefono')}</div>,
+    enableSorting: false,
+  },
+  {
     accessorKey: 'createdAt',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Creado en' />
