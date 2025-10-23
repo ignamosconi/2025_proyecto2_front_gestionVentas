@@ -4,6 +4,7 @@ import {
   Users,
   Command,
   Tag,
+  Building,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 
@@ -53,6 +54,11 @@ export const sidebarData: SidebarData = {
           title: 'Marcas',
           url: '/brands',
           icon: Tag,
+        },
+        {
+          title: 'Proveedores',
+          url: '/suppliers',
+          icon: Building,
         },
       ]
     }
