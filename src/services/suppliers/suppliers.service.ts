@@ -22,12 +22,6 @@ export const suppliersService = {
     return response.data;
   },
 
-  // Obtener proveedores eliminados lógicamente
-  async getDeleted() {
-    const response = await api.get(SUPPLIER_ENDPOINTS.GET_DELETED);
-    return response.data;
-  },
-
   // Crear un nuevo proveedor
   async create(data: CreateSupplierDto) {
     console.log('Creating supplier with data:', data);
@@ -50,12 +44,6 @@ export const suppliersService = {
   // Eliminar un proveedor (soft delete)
   async delete(id: string | number) {
     const response = await api.delete(SUPPLIER_ENDPOINTS.DELETE(String(id)));
-    return response.data;
-  },
-
-  // Restaurar un proveedor eliminado
-  async restore(id: string | number) {
-    const response = await api.patch(SUPPLIER_ENDPOINTS.RESTORE(String(id)));
     return response.data;
   },
 };

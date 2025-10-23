@@ -5,6 +5,7 @@ import {
   Command,
   Tag,
   Building,
+  ShoppingBag,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 
@@ -60,6 +61,11 @@ export const sidebarData: SidebarData = {
           url: '/suppliers',
           icon: Building,
         },
+        {
+          title: 'Productos',
+          url: '/products',
+          icon: ShoppingBag,
+        }
       ]
     }
   ],

@@ -49,12 +49,19 @@ export const CATALOG_ENDPOINTS = {
 // Endpoints de proveedores (suppliers)
 export const SUPPLIER_ENDPOINTS = {
   GET_ALL: `${API_BASE_URL}/proveedor`,
-  GET_DELETED: `${API_BASE_URL}/proveedor/eliminados`,
   GET_BY_ID: (id: string) => `${API_BASE_URL}/proveedor/${id}`,
   CREATE: `${API_BASE_URL}/proveedor`,
   UPDATE: (id: string) => `${API_BASE_URL}/proveedor/${id}`,
   DELETE: (id: string) => `${API_BASE_URL}/proveedor/${id}`,
-  RESTORE: (id: string) => `${API_BASE_URL}/proveedor/${id}/restore`,
+};
+
+// Endpoints de productos (products)
+export const PRODUCT_ENDPOINTS = {
+  GET_ALL: `${API_BASE_URL}/producto`,
+  GET_BY_ID: (id: string) => `${API_BASE_URL}/producto/${id}`,
+  CREATE: `${API_BASE_URL}/producto`,
+  UPDATE: (id: string) => `${API_BASE_URL}/producto/${id}`,
+  DELETE: (id: string) => `${API_BASE_URL}/producto/${id}`,
 };
 
 
