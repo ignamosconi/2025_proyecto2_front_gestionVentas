@@ -1,15 +1,28 @@
 import { z } from 'zod'
 
+// Schema para Marca y Línea anidadas
+const marcaSchema = z.object({
+  id: z.number(),
+  nombre: z.string(),
+})
+
+const lineaSchema = z.object({
+  id: z.number(),
+  nombre: z.string(),
+})
+
 export const productSchema = z.object({
   idProducto: z.number(),
   nombre: z.string(),
   descripcion: z.string().nullable().optional(),
   precio: z.number().min(0),
   stock: z.number().min(0),
-  alerta_stock: z.number().min(0),
+  alertaStock: z.number().min(0),
   foto: z.string().nullable().optional(),
-  id_linea: z.number().optional(),
-  id_marca: z.number().optional(),
+  idLinea: z.number().optional(),
+  idMarca: z.number().optional(),
+  marca: marcaSchema.optional().nullable(),
+  linea: lineaSchema.optional().nullable(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
   deletedAt: z.coerce.date().nullable().optional(),
@@ -24,10 +37,10 @@ export const createProductSchema = z.object({
   descripcion: z.string().optional().nullable(),
   precio: z.number().min(0),
   stock: z.number().min(0),
-  alerta_stock: z.number().min(0),
+  alertaStock: z.number().min(0),
   foto: z.string().nullable().optional(),
-  id_linea: z.number().optional(),
-  id_marca: z.number().optional(),
+  idLinea: z.number().optional(),
+  idMarca: z.number().optional(),
 })
 
 export type CreateProductValues = z.infer<typeof createProductSchema>

@@ -1,16 +1,16 @@
 import api from '@/lib/axios';
 import { PRODUCT_ENDPOINTS } from '../endpoints';
 
-// Interfaces para los DTOs
+// Interfaces para los DTOs (nombres en camelCase como espera el backend)
 export interface CreateProductDto {
   nombre: string;
-  descripcion: string;
+  descripcion?: string;
   precio: number;
   stock: number;
-  alerta_stock: number;
-  foto?: string | null;
-  id_linea?: number;
-  id_marca?: number;
+  alertaStock: number;
+  foto?: string;
+  idLinea?: number;
+  idMarca: number;
 }
 
 export interface UpdateProductDto {
@@ -18,10 +18,10 @@ export interface UpdateProductDto {
   descripcion?: string;
   precio?: number;
   stock?: number;
-  alerta_stock?: number;
-  foto?: string | null;
-  id_linea?: number;
-  id_marca?: number;
+  alertaStock?: number;
+  foto?: string;
+  idLinea?: number;
+  idMarca?: number;
 }
 
 // Servicio de productos
@@ -33,15 +33,42 @@ export const productsService = {
   },
 
   // Crear un nuevo producto
-  async create(data: CreateProductDto) {
+  async create(data: CreateProductDto, file?: File) {
     console.log('Creating product with data:', data);
-    const response = await api.post(PRODUCT_ENDPOINTS.CREATE, data);
+    
+    // Crear FormData para enviar al backend
+    const formData = new FormData();
+    formData.append('data', JSON.stringify(data));
+    
+    // Si hay un archivo, añadirlo al FormData
+    if (file) {
+      formData.append('file', file);
+    }
+    
+    const response = await api.post(PRODUCT_ENDPOINTS.CREATE, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     return response.data;
   },
 
   // Actualizar un producto existente
-  async update(id: string | number, data: UpdateProductDto) {
-    const response = await api.put(PRODUCT_ENDPOINTS.UPDATE(String(id)), data);
+  async update(id: string | number, data: UpdateProductDto, file?: File) {
+    // Crear FormData para enviar al backend
+    const formData = new FormData();
+    formData.append('data', JSON.stringify(data));
+    
+    // Si hay un archivo, añadirlo al FormData
+    if (file) {
+      formData.append('file', file);
+    }
+    
+    const response = await api.put(PRODUCT_ENDPOINTS.UPDATE(String(id)), formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     return response.data;
   },
 

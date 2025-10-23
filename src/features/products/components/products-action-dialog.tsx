@@ -41,7 +41,6 @@ import { type Product } from '../data/schema'
 import { CreateProductDto, productsService, UpdateProductDto } from '@/services/products/products.service'
 import { Textarea } from '@/components/ui/textarea'
 import { brandsService } from '@/services/brands/brands.service'
-import { linesService } from '@/services/lines/lines.service'
 
 const formSchema = z
   .object({
@@ -49,10 +48,11 @@ const formSchema = z
     descripcion: z.string().optional().nullable(),
     precio: z.number().min(0, 'El precio debe ser mayor o igual a 0.'),
     stock: z.number().min(0, 'El stock debe ser mayor o igual a 0.'),
-    alerta_stock: z.number().min(0, 'La alerta de stock debe ser mayor o igual a 0.'),
+    alertaStock: z.number().min(0, 'La alerta de stock debe ser mayor o igual a 0.'),
     foto: z.string().optional().nullable(),
-    id_linea: z.number().optional(),
-    id_marca: z.number().optional(),
+    fotoFile: z.any().optional(),
+    idLinea: z.number().optional(),
+    idMarca: z.number().min(1, 'Debes seleccionar una marca.').optional(),
   })
   .extend({
     isEdit: z.boolean(),
@@ -87,9 +87,13 @@ export function ProductsActionDialog({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [marcas, setMarcas] = useState<Marca[]>([])
   const [lineas, setLineas] = useState<Linea[]>([])
-  const [isLoadingData, setIsLoadingData] = useState(false)
+  const [isLoadingMarcas, setIsLoadingMarcas] = useState(false)
+  const [isLoadingLineas, setIsLoadingLineas] = useState(false)
   const [openMarcaCombobox, setOpenMarcaCombobox] = useState(false)
   const [openLineaCombobox, setOpenLineaCombobox] = useState(false)
+  const [selectedMarcaId, setSelectedMarcaId] = useState<number | undefined>(undefined)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [hasNewImage, setHasNewImage] = useState(false)
 
   const form = useForm<ProductForm>({
     resolver: zodResolver(formSchema),
@@ -99,10 +103,11 @@ export function ProductsActionDialog({
           descripcion: currentRow.descripcion ?? '',
           precio: currentRow.precio,
           stock: currentRow.stock,
-          alerta_stock: currentRow.alerta_stock,
+          alertaStock: currentRow.alertaStock,
           foto: currentRow.foto ?? '',
-          id_linea: currentRow.id_linea,
-          id_marca: currentRow.id_marca,
+          fotoFile: undefined,
+          idLinea: currentRow.idLinea,
+          idMarca: currentRow.idMarca,
           isEdit,
         }
       : {
@@ -110,41 +115,91 @@ export function ProductsActionDialog({
           descripcion: '',
           precio: 0,
           stock: 0,
-          alerta_stock: 0,
+          alertaStock: 0,
           foto: '',
-          id_linea: undefined,
-          id_marca: undefined,
+          fotoFile: undefined,
+          idLinea: undefined,
+          idMarca: undefined,
           isEdit,
         },
   })
 
-  // Cargar marcas y líneas cuando se abre el diálogo
+  // Cargar marcas cuando se abre el diálogo
   useEffect(() => {
     if (open) {
-      loadMarcasAndLineas()
+      loadMarcas()
+      setHasNewImage(false)
+      // Si estamos editando, cargar las líneas de la marca actual
+      if (isEdit && currentRow?.idMarca) {
+        setSelectedMarcaId(currentRow.idMarca)
+        loadLineasByMarca(currentRow.idMarca)
+        // Establecer la vista previa de la imagen si existe
+        if (currentRow?.foto) {
+          // Agregar timestamp para evitar cache del navegador
+          const imageUrl = `${currentRow.foto}?t=${new Date(currentRow.updatedAt || Date.now()).getTime()}`
+          setImagePreview(imageUrl)
+        }
+      }
+    } else {
+      // Limpiar al cerrar
+      setLineas([])
+      setSelectedMarcaId(undefined)
+      setImagePreview(null)
+      setHasNewImage(false)
     }
-  }, [open])
+  }, [open, isEdit, currentRow?.idMarca, currentRow?.foto, currentRow?.updatedAt])
 
-  const loadMarcasAndLineas = async () => {
+  const loadMarcas = async () => {
     try {
-      setIsLoadingData(true)
-      const [marcasData, lineasData] = await Promise.all([
-        brandsService.getAll(),
-        linesService.getAll(),
-      ])
+      setIsLoadingMarcas(true)
+      const marcasData = await brandsService.getAll()
       setMarcas(marcasData)
+    } catch (error) {
+      console.error('Error al cargar marcas:', error)
+      toast.error('Error al cargar las marcas')
+    } finally {
+      setIsLoadingMarcas(false)
+    }
+  }
+
+  const loadLineasByMarca = async (marcaId: number) => {
+    try {
+      setIsLoadingLineas(true)
+      let lineasData = await brandsService.getAssociatedLines(marcaId)
+      lineasData = lineasData.map((linea:any) => {
+        return linea.linea
+      });
       setLineas(lineasData)
     } catch (error) {
-      console.error('Error al cargar marcas y líneas:', error)
-      toast.error('Error al cargar las marcas y líneas')
+      console.error('Error al cargar líneas:', error)
+      toast.error('Error al cargar las líneas de la marca')
+      setLineas([])
     } finally {
-      setIsLoadingData(false)
+      setIsLoadingLineas(false)
     }
+  }
+
+  const handleMarcaChange = (marcaId: number) => {
+    setSelectedMarcaId(marcaId)
+    form.setValue('idMarca', marcaId)
+    
+    // Limpiar la línea seleccionada cuando cambia la marca
+    form.setValue('idLinea', undefined)
+    setLineas([])
+    
+    // Cargar las líneas de la nueva marca
+    loadLineasByMarca(marcaId)
   }
 
   const onSubmit = async (values: ProductForm) => {
     try {
       setIsSubmitting(true)
+      
+      // Validar que se haya seleccionado una marca
+      if (!values.idMarca) {
+        toast.error('Debes seleccionar una marca')
+        return
+      }
       
       if (isEdit && currentRow) {
         // Actualizar producto
@@ -153,13 +208,17 @@ export function ProductsActionDialog({
           descripcion: values.descripcion ?? "",  
           precio: values.precio,
           stock: values.stock,
-          alerta_stock: values.alerta_stock,
-          foto: values.foto ?? "",
-          id_linea: values.id_linea,
-          id_marca: values.id_marca,
+          alertaStock: values.alertaStock,
+          idLinea: values.idLinea,
+          idMarca: values.idMarca,
         }
 
-        await productsService.update(currentRow.idProducto, updateData)
+        // Solo incluir foto si NO hay un archivo nuevo
+        if (!values.fotoFile) {
+          updateData.foto = values.foto ?? "";
+        }
+
+        await productsService.update(currentRow.idProducto, updateData, values.fotoFile)
         toast.success('Producto actualizado correctamente')
       } else {
         // Crear nuevo producto
@@ -168,17 +227,23 @@ export function ProductsActionDialog({
           descripcion: values.descripcion ?? "",  
           precio: values.precio,
           stock: values.stock,
-          alerta_stock: values.alerta_stock,
-          foto: values.foto ?? "",
-          id_linea: values.id_linea,
-          id_marca: values.id_marca,
+          alertaStock: values.alertaStock,
+          idLinea: values.idLinea,
+          idMarca: values.idMarca,
         }
 
-        await productsService.create(createData)
+        // Solo incluir foto si NO hay un archivo nuevo
+        if (!values.fotoFile) {
+          createData.foto = values.foto ?? "";
+        }
+
+        await productsService.create(createData, values.fotoFile)
         toast.success('Producto creado correctamente')
       }
       
       form.reset()
+      setImagePreview(null)
+      setHasNewImage(false)
       onOpenChange(false)
       onSuccess?.()
     } catch (error: any) {
@@ -201,6 +266,8 @@ export function ProductsActionDialog({
       open={open}
       onOpenChange={(state) => {
         form.reset()
+        setImagePreview(null)
+        setHasNewImage(false)
         onOpenChange(state)
       }}
     >
@@ -277,6 +344,7 @@ export function ProductsActionDialog({
                         step={'0.01'}
                         autoComplete='off'
                         {...field}
+                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                       />
                     </FormControl>
                     <FormMessage className='col-span-4 col-start-3' />
@@ -299,6 +367,7 @@ export function ProductsActionDialog({
                         step={'1'}
                         autoComplete='off'
                         {...field}
+                        onChange={(e) => field.onChange(parseInt(e.target.value, 10) || 0)}
                       />
                     </FormControl>
                     <FormMessage className='col-span-4 col-start-3' />
@@ -307,7 +376,7 @@ export function ProductsActionDialog({
               />
               <FormField
                 control={form.control}
-                name='alerta_stock'
+                name='alertaStock'
                 render={({ field }) => (
                   <FormItem className='grid grid-cols-6 items-center space-y-0 gap-x-4 gap-y-1'>
                     <FormLabel className='col-span-2 text-end'>
@@ -321,6 +390,7 @@ export function ProductsActionDialog({
                         step={'1'}
                         autoComplete='off'
                         {...field}
+                        onChange={(e) => field.onChange(parseInt(e.target.value, 10) || 0)}
                       />
                     </FormControl>
                     <FormMessage className='col-span-4 col-start-3' />
@@ -329,29 +399,97 @@ export function ProductsActionDialog({
               />
                             <FormField
                 control={form.control}
-                name='foto'
-                render={({ field: { value, ...field } }) => (
+                name='fotoFile'
+                render={({ field: { value, onChange, ...field } }) => (
                   <FormItem className='grid grid-cols-6 items-center space-y-0 gap-x-4 gap-y-1'>
                     <FormLabel className='col-span-2 text-end'>
-                      Foto (URL)
+                      Foto
                     </FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder='https://ejemplo.com/imagen.jpg'
-                        className='col-span-4'
-                        type='text'
-                        autoComplete='off'
-                        {...field}
-                        value={value ?? ''}
-                      />
-                    </FormControl>
+                    <div className='col-span-4 space-y-2'>
+                      <FormControl>
+                        <Input
+                          type='file'
+                          accept='image/*'
+                          className='cursor-pointer'
+                          onChange={(e) => {
+                            const file = e.target.files?.[0]
+                            if (file) {
+                              onChange(file)
+                              setHasNewImage(true)
+                              // Crear vista previa
+                              const reader = new FileReader()
+                              reader.onloadend = () => {
+                                setImagePreview(reader.result as string)
+                              }
+                              reader.readAsDataURL(file)
+                            } else {
+                              // Si se cancela la selección, restaurar la imagen original si existe
+                              if (isEdit && currentRow?.foto) {
+                                const imageUrl = `${currentRow.foto}?t=${new Date(currentRow.updatedAt || Date.now()).getTime()}`
+                                setImagePreview(imageUrl)
+                                setHasNewImage(false)
+                              } else {
+                                setImagePreview(null)
+                                setHasNewImage(false)
+                              }
+                              onChange(undefined)
+                            }
+                          }}
+                          {...field}
+                          value={undefined}
+                        />
+                      </FormControl>
+                      {isEdit && currentRow?.foto && !imagePreview && (
+                        <p className='text-sm text-muted-foreground'>
+                          Imagen actual mantenida. Sube una nueva para reemplazarla.
+                        </p>
+                      )}
+                      {imagePreview && (
+                        <div className='relative w-full h-32 border rounded-md overflow-hidden bg-gray-50'>
+                          <img
+                            src={imagePreview}
+                            alt='Vista previa'
+                            className='w-full h-full object-contain'
+                          />
+                          <button
+                            type='button'
+                            onClick={() => {
+                              // Si hay una nueva imagen, eliminarla
+                              if (hasNewImage) {
+                                // Si estamos editando y había una imagen original, restaurarla
+                                if (isEdit && currentRow?.foto) {
+                                  const imageUrl = `${currentRow.foto}?t=${new Date(currentRow.updatedAt || Date.now()).getTime()}`
+                                  setImagePreview(imageUrl)
+                                } else {
+                                  setImagePreview(null)
+                                }
+                                setHasNewImage(false)
+                              } else {
+                                // Si es la imagen original, simplemente eliminarla de la vista
+                                setImagePreview(null)
+                              }
+                              form.setValue('fotoFile', undefined)
+                              // Resetear el input file
+                              const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement
+                              if (fileInput) fileInput.value = ''
+                            }}
+                            className='absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors shadow-md'
+                            title={hasNewImage ? 'Cancelar nueva imagen' : 'Ocultar vista previa'}
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        </div>
+                      )}
+                    </div>
                     <FormMessage className='col-span-4 col-start-3' />
                   </FormItem>
                 )}
               />
               <FormField
                 control={form.control}
-                name='id_marca'
+                name='idMarca'
                 render={({ field }) => (
                   <FormItem className='grid grid-cols-6 items-center space-y-0 gap-x-4 gap-y-1'>
                     <FormLabel className='col-span-2 text-end'>
@@ -365,26 +503,43 @@ export function ProductsActionDialog({
                             role='combobox'
                             aria-expanded={openMarcaCombobox}
                             className='col-span-4 w-full justify-between'
-                            disabled={isLoadingData}
+                            disabled={isLoadingMarcas}
                           >
                             {field.value
                               ? marcas.find((marca) => marca.id === field.value)?.nombre
-                              : 'Selecciona una marca'}
+                              : 'Seleccione una marca'}
                             <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
                           </Button>
                         </PopoverTrigger>
-                        <PopoverContent className='w-[--radix-popover-trigger-width] p-0'>
-                          <Command>
+                        <PopoverContent className='w-[300px] p-0'>
+                          <Command className='w-full'>
                             <CommandInput placeholder='Buscar marca...' />
                             <CommandList>
                               <CommandEmpty>No se encontró ninguna marca.</CommandEmpty>
                               <CommandGroup>
+                                <CommandItem
+                                  value="sin-marca"
+                                  onSelect={() => {
+                                    form.setValue('idMarca', undefined)
+                                    form.setValue('idLinea', undefined)
+                                    setSelectedMarcaId(undefined)
+                                    setLineas([])
+                                    setOpenMarcaCombobox(false)
+                                  }}
+                                >
+                                  <Check
+                                    className={`mr-2 h-4 w-4 ${
+                                      !field.value ? 'opacity-100' : 'opacity-0'
+                                    }`}
+                                  />
+                                  Seleccione una marca
+                                </CommandItem>
                                 {marcas.map((marca) => (
                                   <CommandItem
                                     key={marca.id}
                                     value={marca.nombre}
                                     onSelect={() => {
-                                      field.onChange(marca.id)
+                                      handleMarcaChange(marca.id)
                                       setOpenMarcaCombobox(false)
                                     }}
                                   >
@@ -408,7 +563,7 @@ export function ProductsActionDialog({
               />
               <FormField
                 control={form.control}
-                name='id_linea'
+                name='idLinea'
                 render={({ field }) => (
                   <FormItem className='grid grid-cols-6 items-center space-y-0 gap-x-4 gap-y-1'>
                     <FormLabel className='col-span-2 text-end'>
@@ -422,19 +577,25 @@ export function ProductsActionDialog({
                             role='combobox'
                             aria-expanded={openLineaCombobox}
                             className='col-span-4 w-full justify-between'
-                            disabled={isLoadingData}
+                            disabled={!selectedMarcaId || isLoadingLineas}
                           >
                             {field.value
                               ? lineas.find((linea) => linea.id === field.value)?.nombre
-                              : 'Selecciona una línea'}
+                              : selectedMarcaId 
+                                ? 'Selecciona una línea' 
+                                : 'Primero selecciona una marca'}
                             <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
                           </Button>
                         </PopoverTrigger>
-                        <PopoverContent className='w-[--radix-popover-trigger-width] p-0'>
-                          <Command>
+                        <PopoverContent className='w-[300px] p-0'>
+                          <Command className='w-full'>
                             <CommandInput placeholder='Buscar línea...' />
                             <CommandList>
-                              <CommandEmpty>No se encontró ninguna línea.</CommandEmpty>
+                              <CommandEmpty>
+                                {isLoadingLineas 
+                                  ? 'Cargando líneas...' 
+                                  : 'No se encontraron líneas para esta marca.'}
+                              </CommandEmpty>
                               <CommandGroup>
                                 {lineas.map((linea) => (
                                   <CommandItem

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import {
   type SortingState,
   type VisibilityState,
@@ -23,19 +23,24 @@ import {
 } from '@/components/ui/table'
 import { DataTablePagination, DataTableToolbar } from '@/components/data-table'
 import { type Product } from '../data/schema'
-import { productsColumns as columns } from './products-columns'
+import { getProductsColumns } from './products-columns'
 
 type DataTableProps = {
   data: Product[]
   search: Record<string, unknown>
   navigate: NavigateFn
+  refreshTrigger?: number
+  onUpdate?: () => void
 }
 
-export function ProductsTable({ data, search, navigate }: DataTableProps) {
+export function ProductsTable({ data, search, navigate, refreshTrigger = 0 }: DataTableProps) {
   // Local UI-only states
   const [rowSelection, setRowSelection] = useState({})
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [sorting, setSorting] = useState<SortingState>([])
+
+  // Generar columnas con el refreshTrigger actual
+  const columns = useMemo(() => getProductsColumns(refreshTrigger), [refreshTrigger])
 
   // Local state management for table (uncomment to use local-only state, not synced with URL)
   // const [columnFilters, onColumnFiltersChange] = useState<ColumnFiltersState>([])
