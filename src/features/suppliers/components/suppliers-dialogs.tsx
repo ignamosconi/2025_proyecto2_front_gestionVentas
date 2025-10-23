@@ -1,5 +1,6 @@
 import { SuppliersActionDialog } from './suppliers-action-dialog'
 import { SuppliersDeleteDialog } from './suppliers-delete-dialog'
+import { SuppliersAssignProductDialog } from './suppliers-assign-product-dialog'
 import { useSuppliers } from './suppliers-provider'
 
 type SuppliersDialogsProps = {
@@ -37,6 +38,19 @@ export function SuppliersDialogs({ onSuccess }: SuppliersDialogsProps) {
             open={open === 'delete'}
             onOpenChange={() => {
               setOpen('delete')
+              setTimeout(() => {
+                setCurrentRow(null)
+              }, 500)
+            }}
+            currentRow={currentRow}
+            onSuccess={onSuccess}
+          />
+
+          <SuppliersAssignProductDialog
+            key={`supplier-assign-product-${currentRow.idProveedor}`}
+            open={open === 'assignProduct'}
+            onOpenChange={() => {
+              setOpen('assignProduct')
               setTimeout(() => {
                 setCurrentRow(null)
               }, 500)

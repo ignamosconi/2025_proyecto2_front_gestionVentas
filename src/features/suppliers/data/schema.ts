@@ -1,5 +1,23 @@
 import { z } from 'zod'
 
+const productoSchema = z.object({
+  idProducto: z.number(),
+  nombre: z.string(),
+  descripcion: z.string().nullable().optional(),
+})
+
+export type Producto = z.infer<typeof productoSchema>
+
+const supplierProductSchema = z.object({
+  idProductoProveedor: z.number(),
+  proveedorId: z.number(),
+  productoId: z.number(),
+  codigoProveedor: z.string(),
+  producto: productoSchema,
+})
+
+export type SupplierProduct = z.infer<typeof supplierProductSchema>
+
 export const supplierSchema = z.object({
   idProveedor: z.number(),
   nombre: z.string(),
@@ -8,6 +26,7 @@ export const supplierSchema = z.object({
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
   deletedAt: z.coerce.date().nullable().optional(),
+  productos: z.array(supplierProductSchema).optional(),
 })
 
 export type Supplier = z.infer<typeof supplierSchema>

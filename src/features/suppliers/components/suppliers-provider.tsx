@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import useDialogState from '@/hooks/use-dialog-state'
 import { type Supplier } from '../data/schema'
 
-type SuppliersDialogType =  'add' | 'edit' | 'delete'
+type SuppliersDialogType =  'add' | 'edit' | 'delete' | 'assignProduct'
 
 type SuppliersContextType = {
   open: SuppliersDialogType | null

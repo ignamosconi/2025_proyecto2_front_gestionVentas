@@ -53,6 +53,9 @@ export const SUPPLIER_ENDPOINTS = {
   CREATE: `${API_BASE_URL}/proveedor`,
   UPDATE: (id: string) => `${API_BASE_URL}/proveedor/${id}`,
   DELETE: (id: string) => `${API_BASE_URL}/proveedor/${id}`,
+  GET_PRODUCTS: (supplierId: string | number) => `${API_BASE_URL}/producto-proveedor/proveedor/${supplierId}`,
+  ASSIGN_PRODUCT: `${API_BASE_URL}/producto-proveedor`,
+  UNASSIGN_PRODUCT: (relationId: string | number) => `${API_BASE_URL}/producto-proveedor/${relationId}`,
 };
 
 // Endpoints de productos (products)

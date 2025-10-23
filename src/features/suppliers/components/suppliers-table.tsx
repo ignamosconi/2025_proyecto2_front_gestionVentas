@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Fragment } from 'react'
 import {
   type SortingState,
   type VisibilityState,
@@ -23,19 +23,24 @@ import {
 } from '@/components/ui/table'
 import { DataTablePagination, DataTableToolbar } from '@/components/data-table'
 import { type Supplier } from '../data/schema'
-import { suppliersColumns as columns } from './suppliers-columns'
+import { suppliersColumns } from './suppliers-columns'
+import { SupplierProductsExpandedRow } from './supplier-products-expandable'
 
 type DataTableProps = {
   data: Supplier[]
   search: Record<string, unknown>
   navigate: NavigateFn
+  onUpdate?: () => void
+  refreshTrigger?: number
+  onAssignProduct?: (supplier: Supplier) => void
 }
 
-export function SuppliersTable({ data, search, navigate }: DataTableProps) {
+export function SuppliersTable({ data, search, navigate, onUpdate, refreshTrigger, onAssignProduct }: DataTableProps) {
   // Local UI-only states
   const [rowSelection, setRowSelection] = useState({})
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [sorting, setSorting] = useState<SortingState>([])
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({})
 
   // Local state management for table (uncomment to use local-only state, not synced with URL)
   // const [columnFilters, onColumnFiltersChange] = useState<ColumnFiltersState>([])
@@ -57,6 +62,8 @@ export function SuppliersTable({ data, search, navigate }: DataTableProps) {
       { columnId: 'nombre', searchKey: 'nombre', type: 'string' },
     ],
   })
+
+  const columns = suppliersColumns(onUpdate, refreshTrigger, expanded, setExpanded)
 
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
@@ -96,7 +103,7 @@ export function SuppliersTable({ data, search, navigate }: DataTableProps) {
     >
       <DataTableToolbar
         table={table}
-        searchPlaceholder='Filtrar líneas de producto...'
+        searchPlaceholder='Filtrar proveedores...'
         searchKey='nombre'
       />
       <div className='overflow-hidden rounded-md border'>
@@ -129,29 +136,46 @@ export function SuppliersTable({ data, search, navigate }: DataTableProps) {
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && 'selected'}
-                  className='group/row'
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell
-                      key={cell.id}
-                      className={cn(
-                        'bg-background group-hover/row:bg-muted group-data-[state=selected]/row:bg-muted',
-                        cell.column.columnDef.meta?.className,
-                        cell.column.columnDef.meta?.tdClassName
-                      )}
+              table.getRowModel().rows.map((row) => {
+                const isExpanded = expanded[row.original.idProveedor] || false
+                return (
+                  <Fragment key={row.id}>
+                    <TableRow
+                      data-state={row.getIsSelected() && 'selected'}
+                      className='group/row'
                     >
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell
+                          key={cell.id}
+                          className={cn(
+                            'bg-background group-hover/row:bg-muted group-data-[state=selected]/row:bg-muted',
+                            cell.column.columnDef.meta?.className,
+                            cell.column.columnDef.meta?.tdClassName
+                          )}
+                        >
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                    {isExpanded && (
+                      <TableRow>
+                        <TableCell colSpan={columns.length} className='p-0'>
+                          <SupplierProductsExpandedRow
+                            supplierId={row.original.idProveedor}
+                            supplierName={row.original.nombre}
+                            onUpdate={onUpdate}
+                            refreshTrigger={refreshTrigger}
+                            onAssignProduct={() => onAssignProduct?.(row.original)}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </Fragment>
+                )
+              })
             ) : (
               <TableRow>
                 <TableCell

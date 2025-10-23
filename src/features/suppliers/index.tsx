@@ -9,6 +9,7 @@ import { SuppliersProvider, useSuppliers } from './components/suppliers-provider
 import { SuppliersTable } from './components/suppliers-table'
 import { suppliersService } from '@/services/suppliers/suppliers.service'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import type { Supplier } from './data/schema'
 
 const route = getRouteApi('/_authenticated/suppliers/')
 
@@ -17,6 +18,7 @@ function SuppliersContent() {
   const navigate = route.useNavigate()
   const queryClient = useQueryClient()
   const [refreshTrigger, setRefreshTrigger] = useState(0)
+  const { setOpen, setCurrentRow } = useSuppliers()
 
   const { data: suppliers = [] } = useQuery({
     queryKey: ['suppliers'],
@@ -26,6 +28,11 @@ function SuppliersContent() {
   const handleRefreshSuppliers = () => {
     queryClient.invalidateQueries({ queryKey: ['suppliers'] })
     setRefreshTrigger(prev => prev + 1)
+  }
+
+  const handleAssignProduct = (supplier: Supplier) => {
+    setCurrentRow(supplier)
+    setOpen('assignProduct')
   }
 
   return (
@@ -52,6 +59,7 @@ function SuppliersContent() {
           navigate={navigate} 
           onUpdate={handleRefreshSuppliers} 
           refreshTrigger={refreshTrigger}
+          onAssignProduct={handleAssignProduct}
         />
       </Main>
 
