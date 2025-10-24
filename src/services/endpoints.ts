@@ -67,6 +67,12 @@ export const PRODUCT_ENDPOINTS = {
   DELETE: (id: string) => `${API_BASE_URL}/producto/${id}`,
 };
 
+// Endpoints de auditoría (audit)
+export const AUDIT_ENDPOINTS = {
+  GET_ALL: `${API_BASE_URL}/auditoria`,
+  GET_EVENT_TYPES: `${API_BASE_URL}/auditoria/enum`,
+};
+
 
 // Función auxiliar para crear URLs con parámetros de consulta
 export const buildQueryParams = (baseUrl: string, params: Record<string, string | number | boolean | null | undefined>) => {
