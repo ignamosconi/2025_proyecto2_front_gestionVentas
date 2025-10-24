@@ -12,14 +12,17 @@ import { ThemeSwitch } from '@/components/theme-switch'
 import { Analytics } from './components/analytics'
 import { Overview } from './components/overview'
 import { RecentSales } from './components/recent-sales'
+import { DashboardFiltersComponent, DashboardFilters } from './components/dashboard-filters'
 import { useDashboardStats, useRecentSales } from '@/hooks/use-dashboard-stats'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useState } from 'react'
 
 export function Dashboard() {
-  const { data: stats, isLoading: statsLoading } = useDashboardStats()
-  const { data: recentSales } = useRecentSales(5)
+  const [filters, setFilters] = useState<DashboardFilters>({})
+  const { data: stats, isLoading: statsLoading } = useDashboardStats(filters)
+  const { data: recentSales } = useRecentSales(5, filters)
 
-  const salesThisMonth = recentSales?.length || 0
+  const recentSalesCount = recentSales?.length || 0
 
   return (
     <>
@@ -43,6 +46,12 @@ export function Dashboard() {
           <div className='w-full overflow-x-auto pb-2'>
           </div>
           <TabsContent value='overview' className='space-y-4'>
+            {/* Filtros */}
+            <DashboardFiltersComponent 
+              filters={filters} 
+              onFiltersChange={setFilters} 
+            />
+            
             <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
               <Card>
                 <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
@@ -68,11 +77,11 @@ export function Dashboard() {
                   ) : (
                     <>
                       <div className='text-2xl font-bold'>
-                        ${stats?.totalRevenue.toFixed(2) || '0.00'}
+                        ${stats?.totalRevenue.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0,00'}
                       </div>
                       <p className='text-muted-foreground text-xs'>
                         {stats?.revenueGrowth && stats.revenueGrowth > 0 ? '+' : ''}
-                        {stats?.revenueGrowth.toFixed(1) || '0'}% desde el mes pasado
+                        {stats?.revenueGrowth.toFixed(1).replace('.', ',') || '0'}% desde el mes pasado
                       </p>
                     </>
                   )}
@@ -103,9 +112,9 @@ export function Dashboard() {
                     <Skeleton className='h-8 w-32' />
                   ) : (
                     <>
-                      <div className='text-2xl font-bold'>+{salesThisMonth}</div>
+                      <div className='text-2xl font-bold'>+{recentSalesCount}</div>
                       <p className='text-muted-foreground text-xs'>
-                        Ventas recientes registradas
+                        Ventas recientes mostradas
                       </p>
                     </>
                   )}
@@ -183,21 +192,21 @@ export function Dashboard() {
                   <CardTitle>Ventas mensuales</CardTitle>
                 </CardHeader>
                 <CardContent className='ps-2'>
-                  <Overview />
+                  <Overview filters={filters} />
                 </CardContent>
               </Card>
               <Card className='col-span-1 lg:col-span-3'>
                 <CardHeader>
                   <CardTitle>Ventas recientes</CardTitle>
                   <CardDescription>
-                    {salesThisMonth > 0 
-                      ? `Has realizado ${salesThisMonth} ventas recientemente.`
+                    {recentSalesCount > 0 
+                      ? `Mostrando ${recentSalesCount} ventas recientes.`
                       : 'No hay ventas recientes.'
                     }
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <RecentSales />
+                  <RecentSales filters={filters} />
                 </CardContent>
               </Card>
             </div>

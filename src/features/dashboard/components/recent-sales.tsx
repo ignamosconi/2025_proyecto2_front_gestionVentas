@@ -1,9 +1,13 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { useRecentSales } from '@/hooks/use-dashboard-stats'
+import { useRecentSales, DashboardFilters } from '@/hooks/use-dashboard-stats'
 import { Skeleton } from '@/components/ui/skeleton'
 
-export function RecentSales() {
-  const { data: recentSales, isLoading } = useRecentSales(5)
+interface RecentSalesProps {
+  filters?: DashboardFilters
+}
+
+export function RecentSales({ filters }: RecentSalesProps) {
+  const { data: recentSales, isLoading } = useRecentSales(5, filters)
 
   if (isLoading) {
     return (
@@ -59,7 +63,7 @@ export function RecentSales() {
                   {email}
                 </p>
               </div>
-              <div className='font-medium'>+${sale.total.toFixed(2)}</div>
+              <div className='font-medium'>+${sale.total.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
             </div>
           </div>
         )

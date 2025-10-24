@@ -1,9 +1,24 @@
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from 'recharts'
-import { useMonthlySales } from '@/hooks/use-dashboard-stats'
+import { useMonthlySales, DashboardFilters } from '@/hooks/use-dashboard-stats'
 import { Skeleton } from '@/components/ui/skeleton'
 
-export function Overview() {
-  const { data: monthlySales, isLoading } = useMonthlySales()
+// Función para formatear valores grandes de manera compacta
+const formatCurrency = (value: number): string => {
+  if (value >= 1000000) {
+    return `$${(value / 1000000).toFixed(1)}M`
+  }
+  if (value >= 1000) {
+    return `$${(value / 1000).toFixed(0)}K`
+  }
+  return `$${value.toFixed(0)}`
+}
+
+interface OverviewProps {
+  filters?: DashboardFilters
+}
+
+export function Overview({ filters }: OverviewProps) {
+  const { data: monthlySales, isLoading } = useMonthlySales(filters)
 
   if (isLoading) {
     return (
@@ -33,7 +48,8 @@ export function Overview() {
           fontSize={12}
           tickLine={false}
           axisLine={false}
-          tickFormatter={(value) => `$${value}`}
+          tickFormatter={formatCurrency}
+          width={60}
         />
         <Bar
           dataKey='total'

@@ -27,7 +27,8 @@ export const salesColumns: ColumnDef<Sale>[] = [
     ),
     cell: ({ row }) => {
       const total = row.getValue('total') as number
-      return <div className='font-medium'>${total ?? '0.00'}</div>
+      const formatted = total?.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ?? '0,00'
+      return <div className='font-medium'>${formatted}</div>
     },
     enableSorting: false,
   },
