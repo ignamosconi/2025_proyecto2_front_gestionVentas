@@ -37,11 +37,6 @@ export const sidebarData: SidebarData = {
           title: 'Usuarios',
           url: '/users',
           icon: Users,
-        },
-        {
-          title: 'Tasks',
-          url: '/tasks',
-          icon: ListTodo,
         }
       ],
     },

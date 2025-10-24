@@ -5,15 +5,22 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tabs, TabsContent } from '@/components/ui/tabs'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ThemeSwitch } from '@/components/theme-switch'
 import { Analytics } from './components/analytics'
 import { Overview } from './components/overview'
 import { RecentSales } from './components/recent-sales'
+import { useDashboardStats, useRecentSales } from '@/hooks/use-dashboard-stats'
+import { Skeleton } from '@/components/ui/skeleton'
 
 export function Dashboard() {
+  const { data: stats, isLoading: statsLoading } = useDashboardStats()
+  const { data: recentSales } = useRecentSales(5)
+
+  const salesThisMonth = recentSales?.length || 0
+
   return (
     <>
       {/* ===== Top Heading ===== */}
@@ -34,23 +41,13 @@ export function Dashboard() {
           className='space-y-4'
         >
           <div className='w-full overflow-x-auto pb-2'>
-            <TabsList>
-              <TabsTrigger value='overview'>Overview</TabsTrigger>
-              <TabsTrigger value='analytics'>Analytics</TabsTrigger>
-              <TabsTrigger value='reports' disabled>
-                Reports
-              </TabsTrigger>
-              <TabsTrigger value='notifications' disabled>
-                Notifications
-              </TabsTrigger>
-            </TabsList>
           </div>
           <TabsContent value='overview' className='space-y-4'>
             <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
               <Card>
                 <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
                   <CardTitle className='text-sm font-medium'>
-                    Total Revenue
+                    Ingresos totales
                   </CardTitle>
                   <svg
                     xmlns='http://www.w3.org/2000/svg'
@@ -66,16 +63,25 @@ export function Dashboard() {
                   </svg>
                 </CardHeader>
                 <CardContent>
-                  <div className='text-2xl font-bold'>$45,231.89</div>
-                  <p className='text-muted-foreground text-xs'>
-                    +20.1% from last month
-                  </p>
+                  {statsLoading ? (
+                    <Skeleton className='h-8 w-32' />
+                  ) : (
+                    <>
+                      <div className='text-2xl font-bold'>
+                        ${stats?.totalRevenue.toFixed(2) || '0.00'}
+                      </div>
+                      <p className='text-muted-foreground text-xs'>
+                        {stats?.revenueGrowth && stats.revenueGrowth > 0 ? '+' : ''}
+                        {stats?.revenueGrowth.toFixed(1) || '0'}% desde el mes pasado
+                      </p>
+                    </>
+                  )}
                 </CardContent>
               </Card>
               <Card>
                 <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
                   <CardTitle className='text-sm font-medium'>
-                    Subscriptions
+                    Ventas mes actual
                   </CardTitle>
                   <svg
                     xmlns='http://www.w3.org/2000/svg'
@@ -93,15 +99,21 @@ export function Dashboard() {
                   </svg>
                 </CardHeader>
                 <CardContent>
-                  <div className='text-2xl font-bold'>+2350</div>
-                  <p className='text-muted-foreground text-xs'>
-                    +180.1% from last month
-                  </p>
+                  {statsLoading ? (
+                    <Skeleton className='h-8 w-32' />
+                  ) : (
+                    <>
+                      <div className='text-2xl font-bold'>+{salesThisMonth}</div>
+                      <p className='text-muted-foreground text-xs'>
+                        Ventas recientes registradas
+                      </p>
+                    </>
+                  )}
                 </CardContent>
               </Card>
               <Card>
                 <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-                  <CardTitle className='text-sm font-medium'>Sales</CardTitle>
+                  <CardTitle className='text-sm font-medium'>Total de ventas</CardTitle>
                   <svg
                     xmlns='http://www.w3.org/2000/svg'
                     viewBox='0 0 24 24'
@@ -117,16 +129,23 @@ export function Dashboard() {
                   </svg>
                 </CardHeader>
                 <CardContent>
-                  <div className='text-2xl font-bold'>+12,234</div>
-                  <p className='text-muted-foreground text-xs'>
-                    +19% from last month
-                  </p>
+                  {statsLoading ? (
+                    <Skeleton className='h-8 w-32' />
+                  ) : (
+                    <>
+                      <div className='text-2xl font-bold'>+{stats?.totalSales || 0}</div>
+                      <p className='text-muted-foreground text-xs'>
+                        {stats?.salesGrowth && stats.salesGrowth > 0 ? '+' : ''}
+                        {stats?.salesGrowth.toFixed(1) || '0'}% desde el mes pasado
+                      </p>
+                    </>
+                  )}
                 </CardContent>
               </Card>
               <Card>
                 <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
                   <CardTitle className='text-sm font-medium'>
-                    Active Now
+                    Crecimiento
                   </CardTitle>
                   <svg
                     xmlns='http://www.w3.org/2000/svg'
@@ -142,17 +161,26 @@ export function Dashboard() {
                   </svg>
                 </CardHeader>
                 <CardContent>
-                  <div className='text-2xl font-bold'>+573</div>
-                  <p className='text-muted-foreground text-xs'>
-                    +201 since last hour
-                  </p>
+                  {statsLoading ? (
+                    <Skeleton className='h-8 w-32' />
+                  ) : (
+                    <>
+                      <div className='text-2xl font-bold'>
+                        {stats?.revenueGrowth && stats.revenueGrowth > 0 ? '+' : ''}
+                        {stats?.revenueGrowth.toFixed(1) || '0'}%
+                      </div>
+                      <p className='text-muted-foreground text-xs'>
+                        Comparado con el mes anterior
+                      </p>
+                    </>
+                  )}
                 </CardContent>
               </Card>
             </div>
             <div className='grid grid-cols-1 gap-4 lg:grid-cols-7'>
               <Card className='col-span-1 lg:col-span-4'>
                 <CardHeader>
-                  <CardTitle>Overview</CardTitle>
+                  <CardTitle>Ventas mensuales</CardTitle>
                 </CardHeader>
                 <CardContent className='ps-2'>
                   <Overview />
@@ -160,9 +188,12 @@ export function Dashboard() {
               </Card>
               <Card className='col-span-1 lg:col-span-3'>
                 <CardHeader>
-                  <CardTitle>Recent Sales</CardTitle>
+                  <CardTitle>Ventas recientes</CardTitle>
                   <CardDescription>
-                    You made 265 sales this month.
+                    {salesThisMonth > 0 
+                      ? `Has realizado ${salesThisMonth} ventas recientemente.`
+                      : 'No hay ventas recientes.'
+                    }
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
