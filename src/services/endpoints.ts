@@ -73,6 +73,14 @@ export const AUDIT_ENDPOINTS = {
   GET_EVENT_TYPES: `${API_BASE_URL}/auditoria/enum`,
 };
 
+// Endpoints de ventas (sales)
+export const SALES_ENDPOINTS = {
+  GET_ALL: `${API_BASE_URL}/ventas`,
+  GET_BY_ID: (id: string) => `${API_BASE_URL}/ventas/${id}`,
+  CREATE: `${API_BASE_URL}/ventas`,
+  UPDATE: (id: string) => `${API_BASE_URL}/ventas/${id}`,
+  DELETE: (id: string) => `${API_BASE_URL}/ventas/${id}`,
+};
 
 // Función auxiliar para crear URLs con parámetros de consulta
 export const buildQueryParams = (baseUrl: string, params: Record<string, string | number | boolean | null | undefined>) => {

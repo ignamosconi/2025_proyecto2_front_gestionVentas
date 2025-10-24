@@ -1,0 +1,58 @@
+import { type ColumnDef } from '@tanstack/react-table'
+import { DataTableColumnHeader } from '@/components/data-table'
+import { type Sale } from '../data/schema'
+import { DataTableRowActions } from './data-table-row-actions'
+
+export const salesColumns: ColumnDef<Sale>[] = [
+  {
+    accessorKey: 'id',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='ID' />
+    ),
+    cell: ({ row }) => <div>#{row.getValue('id')}</div>,
+    enableSorting: false,
+  },
+  {
+    accessorKey: 'metodoPago',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Método de pago' />
+    ),
+    cell: ({ row }) => <div>{row.getValue('metodoPago') || 'N/A'}</div>,
+    enableSorting: false,
+  },
+  {
+    accessorKey: 'total',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Total' />
+    ),
+    cell: ({ row }) => {
+      const total = row.getValue('total') as number
+      return <div className='font-medium'>${total ?? '0.00'}</div>
+    },
+    enableSorting: false,
+  },
+  {
+    accessorKey: 'fechaCreacion',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Fecha' />
+    ),
+    cell: ({ row }) => {
+      const fecha = row.getValue('fechaCreacion')
+      if (!fecha) return <div>N/A</div>
+      return <div>{
+        new Date(fecha as Date).toLocaleDateString('es-ES', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+        })
+      }</div>
+    },
+    enableSorting: false,
+  },
+  {
+    id: 'actions',
+    cell: DataTableRowActions,
+  },
+]

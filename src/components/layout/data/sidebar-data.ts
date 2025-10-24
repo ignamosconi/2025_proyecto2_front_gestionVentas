@@ -7,6 +7,7 @@ import {
   Building,
   ShoppingBag,
   Layers,
+  Milestone,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 
@@ -66,6 +67,16 @@ export const sidebarData: SidebarData = {
           title: 'Productos',
           url: '/products',
           icon: ShoppingBag,
+        }
+      ]
+    },
+    {
+      title: 'Operaciones',
+      items: [
+        {
+          title: 'Ventas',
+          url: '/sales',
+          icon: Milestone,
         }
       ]
     },
