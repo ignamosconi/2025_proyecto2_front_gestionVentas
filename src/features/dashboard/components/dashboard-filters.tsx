@@ -17,9 +17,9 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
-import { useProveedores } from '@/hooks/use-proveedores'
 import { useMarcas } from '@/hooks/use-marcas'
 import { useLineas } from '@/hooks/use-lineas'
+import { useCallback } from 'react'
 
 export interface DashboardFilters {
   dateFrom?: Date
@@ -35,42 +35,34 @@ interface DashboardFiltersProps {
 }
 
 export function DashboardFiltersComponent({ filters, onFiltersChange }: DashboardFiltersProps) {
-  const { data: proveedores } = useProveedores()
   const { data: marcas } = useMarcas()
   const { data: lineas } = useLineas()
 
-  const handleDateFromChange = (date: Date | undefined) => {
+  const handleDateFromChange = useCallback((date: Date | undefined) => {
     onFiltersChange({ ...filters, dateFrom: date })
-  }
+  }, [filters, onFiltersChange])
 
-  const handleDateToChange = (date: Date | undefined) => {
+  const handleDateToChange = useCallback((date: Date | undefined) => {
     onFiltersChange({ ...filters, dateTo: date })
-  }
+  }, [filters, onFiltersChange])
 
-  const handleProveedorChange = (value: string) => {
-    onFiltersChange({ 
-      ...filters, 
-      proveedorId: value === 'all' ? undefined : Number(value) 
-    })
-  }
-
-  const handleMarcaChange = (value: string) => {
+  const handleMarcaChange = useCallback((value: string) => {
     onFiltersChange({ 
       ...filters, 
       marcaId: value === 'all' ? undefined : Number(value) 
     })
-  }
+  }, [filters, onFiltersChange])
 
-  const handleLineaChange = (value: string) => {
+  const handleLineaChange = useCallback((value: string) => {
     onFiltersChange({ 
       ...filters, 
       lineaId: value === 'all' ? undefined : Number(value) 
     })
-  }
+  }, [filters, onFiltersChange])
 
-  const handleClearFilters = () => {
+  const handleClearFilters = useCallback(() => {
     onFiltersChange({})
-  }
+  }, [onFiltersChange])
 
   const hasActiveFilters = filters.dateFrom || filters.dateTo || 
     filters.proveedorId || filters.marcaId || filters.lineaId

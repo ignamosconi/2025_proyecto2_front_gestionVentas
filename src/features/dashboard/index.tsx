@@ -15,12 +15,22 @@ import { RecentSales } from './components/recent-sales'
 import { DashboardFiltersComponent, DashboardFilters } from './components/dashboard-filters'
 import { useDashboardStats, useRecentSales } from '@/hooks/use-dashboard-stats'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 
 export function Dashboard() {
   const [filters, setFilters] = useState<DashboardFilters>({})
-  const { data: stats, isLoading: statsLoading } = useDashboardStats(filters)
-  const { data: recentSales } = useRecentSales(5, filters)
+  
+  // Estabilizar la referencia del objeto filters para evitar re-renderizados infinitos
+  const stableFilters = useMemo(() => filters, [
+    filters.dateFrom,
+    filters.dateTo,
+    filters.proveedorId,
+    filters.marcaId,
+    filters.lineaId,
+  ])
+  
+  const { data: stats, isLoading: statsLoading } = useDashboardStats(stableFilters)
+  const { data: recentSales } = useRecentSales(5, stableFilters)
 
   const recentSalesCount = recentSales?.length || 0
 
@@ -192,7 +202,7 @@ export function Dashboard() {
                   <CardTitle>Ventas mensuales</CardTitle>
                 </CardHeader>
                 <CardContent className='ps-2'>
-                  <Overview filters={filters} />
+                  <Overview filters={stableFilters} />
                 </CardContent>
               </Card>
               <Card className='col-span-1 lg:col-span-3'>
@@ -206,7 +216,7 @@ export function Dashboard() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <RecentSales filters={filters} />
+                  <RecentSales filters={stableFilters} />
                 </CardContent>
               </Card>
             </div>
