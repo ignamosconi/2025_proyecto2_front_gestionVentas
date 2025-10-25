@@ -9,7 +9,7 @@ export const Route = createFileRoute('/_authenticated/')({
       // Solo permitir acceso a usuarios con rol "Dueño"
       if (!hasRole('Dueño')) {
         throw redirect({
-          to: '/',
+          to: '/sales',
         })
       }
     },
