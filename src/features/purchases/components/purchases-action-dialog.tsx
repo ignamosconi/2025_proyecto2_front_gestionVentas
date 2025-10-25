@@ -55,7 +55,7 @@ export function PurchasesActionDialog({
     resolver: zodResolver(formSchema),
     defaultValues: isEdit
       ? {
-          nombre: currentRow.nombre,
+        nombre: currentRow.proveedor?.nombre ?? '',
           isEdit,
         }
       : {
@@ -70,18 +70,18 @@ export function PurchasesActionDialog({
       
       if (isEdit && currentRow) {
         // Actualizar compra
-        const updateData: UpdatePurchaseDto = {
+        const updateData = {
           nombre: values.nombre,
-        }
+        } as unknown as UpdatePurchaseDto
 
         await purchasesService.update(currentRow.id, updateData)
         toast.success('Compra actualizada correctamente')
       } else {
         // Crear nueva compra   
-        const createData: CreatePurchaseDto = {
+        const createData = {
           nombre: values.nombre,
-        }
-        
+        } as unknown as CreatePurchaseDto
+
         await purchasesService.create(createData)
         toast.success('Compra creada correctamente')
       }

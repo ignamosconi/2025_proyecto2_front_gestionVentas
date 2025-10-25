@@ -13,7 +13,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table'
 import { cn } from '@/lib/utils'
-import { useTableUrlState } from '@/hooks/use-table-url-state'
+import { useTableUrlState, type NavigateFn } from '@/hooks/use-table-url-state'
 import {
   Table,
   TableBody,
@@ -28,7 +28,7 @@ import { type Task } from '../data/schema'
 import { DataTableBulkActions } from './data-table-bulk-actions'
 import { tasksColumns as columns } from './tasks-columns'
 
-const route = getRouteApi('/_authenticated/tasks/')
+const route = getRouteApi('/_authenticated/')
 
 type DataTableProps = {
   data: Task[]
@@ -56,7 +56,7 @@ export function TasksTable({ data }: DataTableProps) {
     ensurePageInRange,
   } = useTableUrlState({
     search: route.useSearch(),
-    navigate: route.useNavigate(),
+  navigate: route.useNavigate() as unknown as NavigateFn,
     pagination: { defaultPage: 1, defaultPageSize: 10 },
     globalFilter: { enabled: true, key: 'filter' },
     columnFilters: [

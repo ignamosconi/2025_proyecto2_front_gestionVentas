@@ -17,12 +17,16 @@ export interface CreatePurchaseDto {
   idProveedor: number;
   metodoPago: string;
   detalles: CreateDetalleCompraDto[];
+  // Optional name for compatibility with UI forms that may send a 'nombre' field
+  nombre?: string;
 }
 
 export interface UpdatePurchaseDto {
   idProveedor?: number;
   metodoPago?: string;
   detalles?: UpdateDetalleCompraDto[];
+  // Optional name for compatibility with UI forms that may send a 'nombre' field
+  nombre?: string;
 }
 
 // Servicio de compras

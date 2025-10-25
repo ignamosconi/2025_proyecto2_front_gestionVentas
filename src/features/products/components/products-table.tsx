@@ -101,7 +101,7 @@ export function ProductsTable({ data, search, navigate, refreshTrigger = 0 }: Da
     >
       <DataTableToolbar
         table={table}
-        searchPlaceholder='Filtrar líneas de producto...'
+        searchPlaceholder='Filtrar por nombre de producto...'
         searchKey='nombre'
       />
       <div className='overflow-hidden rounded-md border'>

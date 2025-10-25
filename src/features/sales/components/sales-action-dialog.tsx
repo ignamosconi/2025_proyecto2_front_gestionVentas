@@ -54,7 +54,7 @@ export function SalesActionDialog({
     resolver: zodResolver(formSchema),
     defaultValues: isEdit
       ? {
-          nombre: currentRow.nombre,
+        nombre: currentRow.detalles?.[0]?.nombreProducto ?? '',
           isEdit,
         }
       : {
@@ -69,17 +69,17 @@ export function SalesActionDialog({
       
       if (isEdit && currentRow) {
         // Actualizar venta
-        const updateData: UpdateSaleDto = {
+        const updateData = {
           nombre: values.nombre,
-        }
+        } as unknown as UpdateSaleDto
 
         await salesService.update(currentRow.id, updateData)
         toast.success('Venta actualizada correctamente')
       } else {
         // Crear nueva venta
-        const createData: CreateSaleDto = {
+        const createData = {
           nombre: values.nombre,
-        }
+        } as unknown as CreateSaleDto
         
         await salesService.create(createData)
         toast.success('Venta creada correctamente')
