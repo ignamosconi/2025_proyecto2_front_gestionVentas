@@ -1,4 +1,4 @@
-import { ListTodo } from 'lucide-react'
+import { Building } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useSuppliers } from './suppliers-provider'
 
@@ -8,7 +8,7 @@ export function SuppliersPrimaryButtons() {
   return (
     <div className='flex gap-2'>
       <Button className='space-x-1' onClick={() => setOpen('add')}>
-        <span>Agregar proveedor</span> <ListTodo size={18} />
+        <span>Agregar proveedor</span> <Building size={18} />
       </Button>
     </div>
   )

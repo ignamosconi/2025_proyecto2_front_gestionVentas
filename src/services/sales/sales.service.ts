@@ -61,10 +61,4 @@ export const salesService = {
       id: response.data.idVenta || response.data.id,
     };
   },
-
-  // Eliminar una venta
-  async delete(id: string | number) {
-    const response = await api.delete(SALES_ENDPOINTS.DELETE(String(id)));
-    return response.data;
-  },
 };

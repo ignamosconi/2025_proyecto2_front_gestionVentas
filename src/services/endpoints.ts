@@ -79,8 +79,15 @@ export const SALES_ENDPOINTS = {
   GET_BY_ID: (id: string) => `${API_BASE_URL}/ventas/${id}`,
   CREATE: `${API_BASE_URL}/ventas`,
   UPDATE: (id: string) => `${API_BASE_URL}/ventas/${id}`,
-  DELETE: (id: string) => `${API_BASE_URL}/ventas/${id}`,
 };
+
+// Endpoints de compras (purchases)
+export const PURCHASES_ENDPOINTS = {
+  GET_ALL: `${API_BASE_URL}/compras`,
+  GET_BY_ID: (id: string) => `${API_BASE_URL}/compras/${id}`,
+  CREATE: `${API_BASE_URL}/compras`,
+  UPDATE: (id: string) => `${API_BASE_URL}/compras/${id}`,  
+}
 
 // Función auxiliar para crear URLs con parámetros de consulta
 export const buildQueryParams = (baseUrl: string, params: Record<string, string | number | boolean | null | undefined>) => {
