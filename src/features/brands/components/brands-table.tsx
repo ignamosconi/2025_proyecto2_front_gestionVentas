@@ -103,7 +103,7 @@ export function BrandsTable({ data, search, navigate, onUpdate, refreshTrigger, 
     >
       <DataTableToolbar
         table={table}
-        searchPlaceholder='Filtrar marcas...'
+        searchPlaceholder='Filtrar por nombre de marca...'
         searchKey='nombre'
       />
       <div className='overflow-hidden rounded-md border'>

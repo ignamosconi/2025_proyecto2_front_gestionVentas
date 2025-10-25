@@ -103,7 +103,7 @@ export function SuppliersTable({ data, search, navigate, onUpdate, refreshTrigge
     >
       <DataTableToolbar
         table={table}
-        searchPlaceholder='Filtrar proveedores...'
+        searchPlaceholder='Filtrar por nombre de proveedor...'
         searchKey='nombre'
       />
       <div className='overflow-hidden rounded-md border'>

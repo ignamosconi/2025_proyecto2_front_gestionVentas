@@ -56,7 +56,7 @@ export function UsersTable({ data, search, navigate }: DataTableProps) {
     globalFilter: { enabled: false },
     columnFilters: [
       // username per-column text filter
-      { columnId: 'fullName', searchKey: 'fullName', type: 'string' },
+      { columnId: 'email', searchKey: 'email', type: 'string' },
       { columnId: 'role', searchKey: 'role', type: 'array' },
     ],
   })
@@ -99,8 +99,8 @@ export function UsersTable({ data, search, navigate }: DataTableProps) {
     >
       <DataTableToolbar
         table={table}
-        searchPlaceholder='Filtrar usuarios...'
-        searchKey='fullName'
+        searchPlaceholder='Filtrar por email...'
+        searchKey='email'
         filters={[
           {
             columnId: 'role',
