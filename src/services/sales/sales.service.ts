@@ -16,11 +16,15 @@ export interface UpdateDetalleVentaDto {
 export interface CreateSaleDto {
   metodoPago: string;
   detalles: CreateDetalleVentaDto[];
+  // Optional name for compatibility with UI forms that may send a 'nombre' field
+  nombre?: string;
 }
 
 export interface UpdateSaleDto {
   metodoPago?: string;
   detalles?: UpdateDetalleVentaDto[];
+  // Optional name for compatibility with UI forms that may send a 'nombre' field
+  nombre?: string;
 }
 
 // Servicio de ventas

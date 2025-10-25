@@ -1,6 +1,5 @@
 import { type ColumnDef } from '@tanstack/react-table'
-import { cn } from '@/lib/utils'
-import { Checkbox } from '@/components/ui/checkbox'
+// removed unused imports: cn, Checkbox
 import { DataTableColumnHeader } from '@/components/data-table'
 import { LongText } from '@/components/long-text'
 import { roles } from '../data/data'
