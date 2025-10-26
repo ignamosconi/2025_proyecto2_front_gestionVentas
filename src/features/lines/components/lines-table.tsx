@@ -96,7 +96,7 @@ export function LinesTable({ data, search, navigate }: DataTableProps) {
     >
       <DataTableToolbar
         table={table}
-        searchPlaceholder='Filtrar líneas de producto...'
+        searchPlaceholder='Filtrar por nombre de línea...'
         searchKey='nombre'
       />
       <div className='overflow-hidden rounded-md border'>

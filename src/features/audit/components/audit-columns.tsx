@@ -59,9 +59,7 @@ export const auditColumns: ColumnDef<Audit>[] = [
       )
     },
     enableSorting: false,
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id))
-    },
+    filterFn: (row, id, value) => value.includes(row.getValue(id)),
   },
   {
     accessorKey: 'user',
@@ -69,7 +67,10 @@ export const auditColumns: ColumnDef<Audit>[] = [
       <DataTableColumnHeader column={column} title='Usuario' />
     ),
     cell: ({ row }) => {
-      const user = row.getValue('user') as Audit['user']
+      const user = row.getValue('user') as Audit['user'] | null
+      if (!user) {
+        return <div className='min-w-[150px] text-muted-foreground'>Usuario eliminado</div>
+      }
       return (
         <div className='min-w-[150px]'>
           <div className='font-medium'>
@@ -81,7 +82,8 @@ export const auditColumns: ColumnDef<Audit>[] = [
     },
     enableSorting: false,
     filterFn: (row, id, value) => {
-      const user = row.getValue(id) as Audit['user']
+      const user = row.getValue(id) as Audit['user'] | null
+      if (!user) return false
       const searchValue = value.toLowerCase()
       return (
         user.firstName.toLowerCase().includes(searchValue) ||
@@ -97,16 +99,13 @@ export const auditColumns: ColumnDef<Audit>[] = [
       <DataTableColumnHeader column={column} title='Rol' />
     ),
     cell: ({ row }) => {
-      const user = row.original.user
-      return (
-        <Badge variant='secondary'>
-          {user.role}
-        </Badge>
-      )
+      const role = row.original.user?.role || 'N/A'
+      return <Badge variant='secondary'>{role}</Badge>
     },
     enableSorting: false,
     filterFn: (row, _id, value) => {
-      return value.includes(row.original.user.role)
+      const role = row.original.user?.role
+      return role ? value.includes(role) : false
     },
   },
   {

@@ -96,7 +96,7 @@ export function SalesTable({ data, search, navigate }: DataTableProps) {
     >
       <DataTableToolbar
         table={table}
-        searchPlaceholder='Filtrar ventas...'
+        searchPlaceholder='Filtrar medios de pago'
         searchKey='metodoPago'
       />
       <div className='overflow-hidden rounded-md border'>
