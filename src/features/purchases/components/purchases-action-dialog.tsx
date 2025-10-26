@@ -29,7 +29,8 @@ import { CreatePurchaseDto, purchasesService, UpdatePurchaseDto } from '@/servic
 
 const formSchema = z
   .object({
-    nombre: z.string().min(1, 'El nombre es requerido.'),
+    idProveedor: z.number().min(1, 'El proveedor es requerido.'),
+    metodoPago: z.string().min(1, 'El método de pago es requerido.'),
     isEdit: z.boolean(),
   })
 
@@ -55,11 +56,13 @@ export function PurchasesActionDialog({
     resolver: zodResolver(formSchema),
     defaultValues: isEdit
       ? {
-        nombre: currentRow.proveedor?.nombre ?? '',
+          idProveedor: currentRow.idProveedor || 0,
+          metodoPago: currentRow.metodoPago || '',
           isEdit,
         }
       : {
-          nombre: '',
+          idProveedor: 0,
+          metodoPago: '',
           isEdit,
         },
   })
@@ -70,18 +73,21 @@ export function PurchasesActionDialog({
       
       if (isEdit && currentRow) {
         // Actualizar compra
-        const updateData = {
-          nombre: values.nombre,
-        } as unknown as UpdatePurchaseDto
+        const updateData: UpdatePurchaseDto = {
+          idProveedor: values.idProveedor,
+          metodoPago: values.metodoPago,
+        }
 
         await purchasesService.update(currentRow.id, updateData)
         toast.success('Compra actualizada correctamente')
       } else {
         // Crear nueva compra   
-        const createData = {
-          nombre: values.nombre,
-        } as unknown as CreatePurchaseDto
-
+        const createData: CreatePurchaseDto = {
+          idProveedor: values.idProveedor,
+          metodoPago: values.metodoPago,
+          detalles: [], // Detalles vacíos por ahora
+        }
+        
         await purchasesService.create(createData)
         toast.success('Compra creada correctamente')
       }
@@ -124,15 +130,37 @@ export function PurchasesActionDialog({
             >
               <FormField
                 control={form.control}
-                name='nombre'
+                name='idProveedor'
                 render={({ field }) => (
                   <FormItem className='grid grid-cols-6 items-center space-y-0 gap-x-4 gap-y-1'>
                     <FormLabel className='col-span-2 text-end'>
-                      Nombre
+                      Proveedor ID
                     </FormLabel>
                     <FormControl>
                       <Input
-                        placeholder='Ej: Línea Premium'
+                        type='number'
+                        placeholder='ID del proveedor'
+                        className='col-span-4'
+                        autoComplete='off'
+                        {...field}
+                        onChange={(e) => field.onChange(Number(e.target.value))}
+                      />
+                    </FormControl>
+                    <FormMessage className='col-span-4 col-start-3' />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name='metodoPago'
+                render={({ field }) => (
+                  <FormItem className='grid grid-cols-6 items-center space-y-0 gap-x-4 gap-y-1'>
+                    <FormLabel className='col-span-2 text-end'>
+                      Método de Pago
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder='Ej: Efectivo, Tarjeta'
                         className='col-span-4'
                         autoComplete='off'
                         {...field}

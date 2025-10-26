@@ -28,7 +28,7 @@ import { CreateSaleDto, salesService, UpdateSaleDto } from '@/services/sales/sal
 
 const formSchema = z
   .object({
-    nombre: z.string().min(1, 'El nombre es requerido.'),
+    metodoPago: z.string().min(1, 'El método de pago es requerido.'),
     isEdit: z.boolean(),
   })
 
@@ -54,11 +54,11 @@ export function SalesActionDialog({
     resolver: zodResolver(formSchema),
     defaultValues: isEdit
       ? {
-        nombre: currentRow.detalles?.[0]?.nombreProducto ?? '',
+          metodoPago: currentRow.metodoPago || '',
           isEdit,
         }
       : {
-          nombre: '',
+          metodoPago: '',
           isEdit,
         },
   })
@@ -69,17 +69,18 @@ export function SalesActionDialog({
       
       if (isEdit && currentRow) {
         // Actualizar venta
-        const updateData = {
-          nombre: values.nombre,
-        } as unknown as UpdateSaleDto
+        const updateData: UpdateSaleDto = {
+          metodoPago: values.metodoPago,
+        }
 
         await salesService.update(currentRow.id, updateData)
         toast.success('Venta actualizada correctamente')
       } else {
         // Crear nueva venta
-        const createData = {
-          nombre: values.nombre,
-        } as unknown as CreateSaleDto
+        const createData: CreateSaleDto = {
+          metodoPago: values.metodoPago,
+          detalles: [], // Detalles vacíos por ahora
+        }
         
         await salesService.create(createData)
         toast.success('Venta creada correctamente')
@@ -123,15 +124,15 @@ export function SalesActionDialog({
             >
               <FormField
                 control={form.control}
-                name='nombre'
+                name='metodoPago'
                 render={({ field }) => (
                   <FormItem className='grid grid-cols-6 items-center space-y-0 gap-x-4 gap-y-1'>
                     <FormLabel className='col-span-2 text-end'>
-                      Nombre
+                      Método de Pago
                     </FormLabel>
                     <FormControl>
                       <Input
-                        placeholder='Ej: Línea Premium'
+                        placeholder='Ej: Efectivo, Tarjeta'
                         className='col-span-4'
                         autoComplete='off'
                         {...field}

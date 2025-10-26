@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/form'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { PasswordInput } from '@/components/password-input'
-import { authService } from '@/services'
+import { authService } from '@/services/auth/auth.service'
 
 const formSchema = z
   .object({
