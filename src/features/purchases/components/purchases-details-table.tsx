@@ -286,9 +286,6 @@ export function PurchaseDetailsTable({ details, setDetails, idProveedor }: Purch
                         }
                         className='w-20 text-center'
                       />
-                      <p className='text-xs text-muted-foreground'>
-                        Nuevo stock: {getNewStock(detail)}
-                      </p>
                     </div>
                   </TableCell>
                   <TableCell className='text-right'>
