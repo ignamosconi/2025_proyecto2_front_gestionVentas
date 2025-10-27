@@ -11,6 +11,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
+import { DatePicker } from '@/components/date-picker'
 import { cn } from '@/lib/utils'
 import { type NavigateFn, useTableUrlState } from '@/hooks/use-table-url-state'
 import {
@@ -21,7 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { DataTablePagination, DataTableToolbar } from '@/components/data-table'
+import { DataTablePagination } from '@/components/data-table'
 import { type Sale } from '../data/schema'
 import { salesColumns as columns } from './sales-columns'
 
@@ -58,9 +59,38 @@ export function SalesTable({ data, search, navigate }: DataTableProps) {
     ],
   })
 
+  // Date range filter (based on fechaCreacion)
+  const rawDateFrom = (search as Record<string, unknown>)['dateFrom'] as string | undefined
+  const rawDateTo = (search as Record<string, unknown>)['dateTo'] as string | undefined
+  const dateFrom = rawDateFrom ? new Date(rawDateFrom) : undefined
+  const dateTo = rawDateTo ? new Date(rawDateTo) : undefined
+
+  const handleDateFromChange = (d: Date | undefined) => {
+    const iso = d ? new Date(new Date(d).setHours(0, 0, 0, 0)).toISOString() : undefined
+    navigate({
+      search: (prev) => ({ ...(prev as Record<string, unknown>), page: undefined, dateFrom: iso }),
+    })
+  }
+
+  const handleDateToChange = (d: Date | undefined) => {
+    const iso = d ? new Date(new Date(d).setHours(23, 59, 59, 999)).toISOString() : undefined
+    navigate({
+      search: (prev) => ({ ...(prev as Record<string, unknown>), page: undefined, dateTo: iso }),
+    })
+  }
+
+  // Filter data by fechaCreacion using the date range (if provided)
+  const filteredData = data.filter((row) => {
+    const fecha = row.fechaCreacion ? new Date(row.fechaCreacion) : null
+    if (!fecha) return false
+    if (dateFrom && fecha < dateFrom) return false
+    if (dateTo && fecha > dateTo) return false
+    return true
+  })
+
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
-    data,
+    data: filteredData,
     columns,
     state: {
       sorting,
@@ -94,11 +124,20 @@ export function SalesTable({ data, search, navigate }: DataTableProps) {
         'flex flex-1 flex-col gap-4'
       )}
     >
-      <DataTableToolbar
-        table={table}
-        searchPlaceholder='Filtrar medios de pago'
-        searchKey='metodoPago'
-      />
+      <div className='flex flex-wrap items-center gap-2'>
+        <div className='flex items-center gap-2'>
+          <DatePicker
+            selected={dateFrom}
+            onSelect={handleDateFromChange}
+            placeholder='Fecha desde'
+          />
+          <DatePicker
+            selected={dateTo ? new Date(new Date(dateTo).setHours(0, 0, 0, 0)) : undefined}
+            onSelect={(d) => handleDateToChange(d)}
+            placeholder='Fecha hasta'
+          />
+        </div>
+      </div>
       <div className='overflow-hidden rounded-md border'>
         <Table>
           <TableHeader>

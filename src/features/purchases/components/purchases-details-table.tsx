@@ -153,16 +153,6 @@ export function PurchaseDetailsTable({ details, setDetails, idProveedor }: Purch
     setDetails(updatedDetails)
   }
 
-  const getProductStock = (idProducto: number) => {
-    const product = products.find((p) => p.idProducto === idProducto)
-    return product?.stock || 0
-  }
-
-  const getNewStock = (detail: PurchaseDetail) => {
-    const currentStock = getProductStock(detail.idProducto)
-    return currentStock + detail.cantidad
-  }
-
   const calculateSubtotal = (detail: PurchaseDetail) => {
     return (detail.precio || 0) * detail.cantidad
   }

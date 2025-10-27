@@ -33,12 +33,13 @@ export const salesColumns: ColumnDef<Sale>[] = [
     enableSorting: false,
   },
   {
-    accessorKey: 'fechaCreacion',
+    id: 'fechaCreacion',
+    accessorFn: (row) => (row.fechaCreacion ? new Date(row.fechaCreacion).getTime() : 0),
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Fecha' />
     ),
     cell: ({ row }) => {
-      const fecha = row.getValue('fechaCreacion')
+      const fecha = row.original.fechaCreacion
       if (!fecha) return <div>N/A</div>
       return <div>{
         new Date(fecha as Date).toLocaleDateString('es-ES', {
@@ -50,7 +51,7 @@ export const salesColumns: ColumnDef<Sale>[] = [
         })
       }</div>
     },
-    enableSorting: false,
+    enableSorting: true,
   },
   {
     id: 'actions',
