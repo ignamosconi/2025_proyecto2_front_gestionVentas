@@ -132,16 +132,6 @@ export function SaleDetailsTable({ details, setDetails }: SaleDetailsTableProps)
     setDetails(updatedDetails)
   }
 
-  const getProductStock = (idProducto: number) => {
-    const product = products.find((p) => p.idProducto === idProducto)
-    return product?.stock || 0
-  }
-
-  const getRemainingStock = (detail: SaleDetail) => {
-    const totalStock = getProductStock(detail.idProducto)
-    return totalStock - detail.cantidad
-  }
-
   const calculateSubtotal = (detail: SaleDetail) => {
     return (detail.precio || 0) * detail.cantidad
   }
@@ -260,9 +250,6 @@ export function SaleDetailsTable({ details, setDetails }: SaleDetailsTableProps)
                         }
                         className='w-20 text-center'
                       />
-                      <p className='text-xs text-muted-foreground'>
-                        Stock restante: {getRemainingStock(detail)}
-                      </p>
                     </div>
                   </TableCell>
                   <TableCell className='text-right'>
