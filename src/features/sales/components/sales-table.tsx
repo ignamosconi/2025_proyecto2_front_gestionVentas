@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   type SortingState,
   type VisibilityState,
@@ -62,6 +62,18 @@ export function SalesTable({ data, search, navigate }: DataTableProps) {
   // Date range filter (based on fechaCreacion)
   const rawDateFrom = (search as Record<string, unknown>)['dateFrom'] as string | undefined
   const rawDateTo = (search as Record<string, unknown>)['dateTo'] as string | undefined
+  
+  // Filter data by fechaCreacion using the date range (if provided)
+  const filteredData = useMemo(() => {
+    return data.filter((row) => {
+      const fecha = row.fechaCreacion ? new Date(row.fechaCreacion) : null
+      if (!fecha) return false
+      if (rawDateFrom && fecha < new Date(rawDateFrom)) return false
+      if (rawDateTo && fecha > new Date(rawDateTo)) return false
+      return true
+    })
+  }, [data, rawDateFrom, rawDateTo])
+  
   const dateFrom = rawDateFrom ? new Date(rawDateFrom) : undefined
   const dateTo = rawDateTo ? new Date(rawDateTo) : undefined
 
@@ -78,15 +90,6 @@ export function SalesTable({ data, search, navigate }: DataTableProps) {
       search: (prev) => ({ ...(prev as Record<string, unknown>), page: undefined, dateTo: iso }),
     })
   }
-
-  // Filter data by fechaCreacion using the date range (if provided)
-  const filteredData = data.filter((row) => {
-    const fecha = row.fechaCreacion ? new Date(row.fechaCreacion) : null
-    if (!fecha) return false
-    if (dateFrom && fecha < dateFrom) return false
-    if (dateTo && fecha > dateTo) return false
-    return true
-  })
 
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
@@ -115,7 +118,7 @@ export function SalesTable({ data, search, navigate }: DataTableProps) {
 
   useEffect(() => {
     ensurePageInRange(table.getPageCount())
-  }, [table, ensurePageInRange])
+  }, [table.getPageCount(), ensurePageInRange])
 
   return (
     <div

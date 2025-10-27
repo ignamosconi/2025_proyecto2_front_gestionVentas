@@ -7,6 +7,9 @@ const purchasesSearchSchema = z.object({
   pageSize: z.number().optional().catch(10),
   // Per-column text filter
   metodoPago: z.string().optional().catch(''),
+  // Date range filters
+  dateFrom: z.string().optional(),
+  dateTo: z.string().optional(),
 })
 
 export const Route = createFileRoute('/_authenticated/purchases/')({
